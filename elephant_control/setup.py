@@ -20,10 +20,10 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'mpc_node = test_mpc.mpc_node:main',
-            'test_pub = test_mpc.mpc_pos_pub:main',
-            'test_pub_back = test_mpc.mpc_pos_pub_back:main',
-            'mpc_node_open_loop = test_mpc.mpc_node_open_loop:main',
+            'mpc_node = elephant_control.mpc_node:main',
+            'test_pub = elephant_control.mpc_pos_pub:main',
+            'test_pub_back = elephant_control.mpc_pos_pub_back:main',
+            'mpc_node_open_loop = elephant_control.mpc_node_open_loop:main',
         ],
     },
 )

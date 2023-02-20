@@ -8,7 +8,7 @@ import math
 from casadi import sin, cos, pi
 
 try :
-    from test_mpc import cubic_spline_planner
+    from elephant_control import cubic_spline_planner
 except :
     pass
 try :
