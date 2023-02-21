@@ -1,17 +1,25 @@
 import math
 import numpy as np
+import casadi as ca
 
 class ElephantModel():
     def __init__(self):
         self.r = 0.0625 #[m]
         self.d = 0.55 # [m]
         
-    def forward_matrix(self):
-        J_for = (0.7071/self.r)*np.array([
-        [1, 1, -1, -1],
-        [1, -1, -1, 1],
-        [1/(2*self.d), 1/(2*self.d), 1/(2*self.d), 1/(2*self.d)]
-        ])
+    def forward_matrix(self, type = None):
+        if type == "numpy":
+            J_for = (0.7071/self.r)*np.array([
+                [1, 1, -1, -1],
+                [1, -1, -1, 1],
+                [-1/(2*self.d), -1/(2*self.d), -1/(2*self.d), -1/(2*self.d)]
+            ])
+        elif type == "sym":
+            J_for = (0.7071/self.r)*ca.DM([
+                [1, 1, -1, -1],
+                [1, -1, -1, 1],
+                [-1/(2*self.d), -1/(2*self.d), -1/(2*self.d), -1/(2*self.d)]
+            ])
         return J_for
     
     def inverse_matrix(self):
@@ -23,16 +31,26 @@ class ElephantModel():
         ])
         return J_inv
     
-    def rotation_matrix(self, angle):
-        rot = np.array([
-            [math.cos(angle), -math.sin(angle), 0],
-            [math.sin(angle), math.cos(angle), 0],
-            [0,     0,      1]
-        ])
+    def rotation_matrix(self, angle, type = None):
+        if type == "numpy":
+            rot = np.array([
+                [math.cos(angle), math.sin(angle), 0],
+                [-math.sin(angle), math.cos(angle), 0],
+                [0,     0,      1]
+            ])
+        elif type == "sym":
+            rot = ca.vertcat(
+                ca.horzcat(ca.cos(angle), ca.sin(angle), 0),
+                ca.horzcat(-ca.sin(angle), ca.cos(angle), 0),
+                ca.horzcat(0, 0, 1)
+            )
         return rot
     
-    def forward_kinematic(self, w1, w2, w3, w4, angle):
-        for_vec = self.rotation_matrix(angle).T @ self.forward_matrix() @ np.array([w1, w2, w3, w4])
+    def forward_kinematic(self, w1, w2, w3, w4, angle, type = None):
+        if type == "numpy":
+            for_vec = self.rotation_matrix(angle, type).T @ self.forward_matrix(type) @ np.array([w1, w2, w3, w4])
+        elif type == "sym":
+            for_vec = self.rotation_matrix(angle, type).T @ self.forward_matrix(type) @ ca.vertcat(w1, w2, w3, w4)
         return for_vec
     
     def inverse_kinematic(self, vx, vy, vth):

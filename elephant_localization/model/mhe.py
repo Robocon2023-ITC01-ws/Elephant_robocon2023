@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 from model.elephant_model import *
-import casadi as ca
 
 class casadi_mhe_model():
     def __init__(self, n_states, n_control, Nmhe):
@@ -25,7 +24,7 @@ class casadi_mhe_model():
         w4 = ca.SX.sym("w4")
         controls = ca.vertcat(w1,w2,w3,w4)
 
-        RHS = self.elephant.forward_kinematic(w1, w2, w3, w3, yaw)
+        RHS = self.elephant.forward_kinematic(w1, w2, w3, w3, yaw, "sym")
         f = ca.Function('f', [states, controls], [RHS])
         return f
     
