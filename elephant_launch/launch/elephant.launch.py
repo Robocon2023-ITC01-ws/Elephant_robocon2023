@@ -58,7 +58,7 @@ def generate_launch_description():
         # Node(package='elephant_localization', executable='localization'),
         Node(package='elephant_can',executable='can'),
         Node(package='elephant_can',executable='teleop'),
-        # Node(package='elephant_control',executable='mpc_node'),
+        Node(package='elephant_control',executable='test_controller'),
         Node(package='joy', executable='joy_node'),
         #Node(package='rabbit_can', executable='joy'),
 

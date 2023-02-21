@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'mpc_node = elephant_control.mpc_node:main',
+            'test_controller = elephant_control.controller:main',
             'test_pub = elephant_control.mpc_pos_pub:main',
             'test_pub_back = elephant_control.mpc_pos_pub_back:main',
             'mpc_node_open_loop = elephant_control.mpc_node_open_loop:main',
