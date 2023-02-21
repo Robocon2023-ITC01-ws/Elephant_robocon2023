@@ -15,7 +15,7 @@ class kinematic():
         return J_for
     
     def inverse_matrix(self):
-        J_inv = (self.r/(4*0.7071))*np.array([
+        J_inv = (0.7071/self.r)*np.array([
         [1,1,-2*self.d],
         [1,-1,-2*self.d],
         [-1,-1,-2*self.d],

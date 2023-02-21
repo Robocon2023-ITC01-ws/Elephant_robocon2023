@@ -19,7 +19,7 @@ class ros_node(Node):
         self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,10)
         self.twist_sub = self.create_subscription(Twist, '/cmd_vel', self.twist_callback,10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
-        self.velocity_timer = self.create_timer(0.05, self.velocity_callback)
+        self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
 
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]
@@ -36,13 +36,13 @@ class ros_node(Node):
 
     def velocity_callback(self):
         pub_msg = Float32MultiArray()
-        Vx = self.kinematic.map(self.vx, -1, 1,-1,1)
-        Vy = self.kinematic.map(self.vy, -1, 1, -1, 1)
+        Vx = self.kinematic.map(self.vx, -1, 1,-2,2)
+        Vy = self.kinematic.map(self.vy, -1, 1, -2, 2)
         Vth = self.kinematic.map(self.omega, -1,1,-np.pi, np.pi)
         w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
         pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
         data = np.array([w1, w2, w3, w4])
-        print(data)
+        print(Vx)
         self.velocity_pub.publish(pub_msg)
         
 

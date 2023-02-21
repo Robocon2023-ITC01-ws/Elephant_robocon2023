@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from model.mhe import *
+from model.elephant_model import *
 import casadi as ca
 
 # ROS topic
@@ -75,7 +76,7 @@ class ros_node(Node):
         self.wheel_vel[3] = msg.data[3]
         self.control_n = self.wheel_vel
 
-        self.command_vel[0], self.command_vel[1], self.command_vel[2] = self.elephant.forward_kinematic(self.wheel_vel[0], self.wheel_vel[1], self.wheel_vel[2], self.wheel_vel[3], 0.0)
+        self.command_vel[0], self.command_vel[1], self.command_vel[2] = self.elephant.forward_kinematic(self.wheel_vel[0], self.wheel_vel[1], self.wheel_vel[2], self.wheel_vel[3], 0.0, "numpy")
 
     def imu_callback(self, imu_msg):
         self.q[0] = imu_msg.orientation.x
@@ -139,7 +140,8 @@ class ros_node(Node):
         odom_msg.y = float(np.round(self.sol_Xmhe[1],3))
         odom_msg.z = float(np.round(self.sol_Xmhe[2],3))
         self.odom_publisher.publish(odom_msg)
-        self.current_state = self.sol_Xmhe.full()[:,self.Nmhe]    
+        #self.current_state = self.sol_Xmhe.full()[:,self.Nmhe]  
+        self.get_logger().info("%f\t" % np.round(self.sol_Xmhe[0],3) + "%f\t" % np.round(self.sol_Xmhe[1],3) +"%f" % np.round(self.sol_Xmhe[2],3) )  
 
 def main(args=None):
     rclpy.init(args=args)
