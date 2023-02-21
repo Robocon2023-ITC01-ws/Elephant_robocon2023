@@ -55,7 +55,7 @@ def generate_launch_description():
         reset_orientation_arg,
         frequency_arg,
         ros_imu_node,
-        # Node(package='elephant_localization', executable='localization'),
+        Node(package='elephant_localization', executable='localization'),
         Node(package='elephant_can',executable='can'),
         Node(package='elephant_can',executable='teleop'),
         Node(package='elephant_control',executable='test_controller'),
