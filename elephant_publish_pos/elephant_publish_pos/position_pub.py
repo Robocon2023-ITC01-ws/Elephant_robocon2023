@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import Bool
     
 try :
     from elephant_publish_pos import cubic_spline_planner
@@ -77,6 +78,7 @@ class position_class(Node):
         self.prosses = self.create_timer(timer_period, self.prosses_callback)
         self.pub_timer = self.create_timer(0.05, self.pub_timer_callback)
         self.publisher_ = self.create_publisher(Float32MultiArray, 'mpc_position', 10)
+        self.control_type_pub = self.create_subscription(Bool, 'Controller_state',self.control_type_cb, 10)
         self.subscription1 = self.create_subscription(
             Vector3,
             '/odom/data',
@@ -103,11 +105,18 @@ class position_class(Node):
         self.current_yaw = 0.0
         self.ck_test = 0.0
         self.run = False
-    
+        self.mpc_control = True
+
+    def control_type_cb(self, msg):
+        self.mpc_control = msg.data
+        if(self.mpc_control == False) :
+            self.run = False
+            self.tick = 0
+
     def joy_position_cb(self, joy_msg):
         print("recieve")
         if (joy_msg.x != self.pos_x or joy_msg.y != self.pos_y or joy_msg.z != self.pos_yaw):
-            self.pos_x = joy_msg.x
+            self.pos_x = joy_msg.x      ## here is the problem too
             self.pos_y = joy_msg.y
             self.pos_yaw = joy_msg.z
             ## cubic cubic_spline_planner ## here
@@ -169,20 +178,20 @@ class position_class(Node):
                     ## four point
                     self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_right - y_right/2,y_right/2
                                           ,x_left - y_left/2,y_left/2,self.pos_x,self.pos_y)
-
+            self.slow_speed = 1.0
             self.run = True     ## state for publish mpc_position
-        else :
-            self.run = False
     def feedback_callback(self, msg):
-        self.current_x = msg.x
-        self.current_y = msg.y
+        self.current_x = -msg.y     ## different plane
+        self.current_y = msg.x
         self.current_yaw = msg.z
     def pub_timer_callback(self):
         if (self.run == True):
             msg = Float32MultiArray()
             if self.tick <= len(self.cx) - 1 : 
-                self.pub_x = self.cx[self.tick]
-                self.pub_y = self.cy[self.tick]
+                # self.pub_x = self.cx[self.tick]     ## different plan
+                # self.pub_y = self.cy[self.tick]
+                self.pub_x = self.cy[self.tick]     ## different plan
+                self.pub_y = -1 * self.cx[self.tick]
                 self.pub_yaw = self.cyaw[self.tick]
                 self.pub_yaw = 0.0
                 if self.tick <= len(self.cx) - 5 :
@@ -195,9 +204,13 @@ class position_class(Node):
             self.publisher_.publish(msg)
 
     def prosses_callback(self):
+        print(self.tick)
+        self.state_init = ca.DM([self.current_x, self.current_y, self.current_yaw])
+        self.state_target = ca.DM([-1 * self.pub_y, self.pub_x, self.pub_yaw])      ## wrong plane
+        print(self.state_init)
+        print(self.state_target)
         if self.run == True :
-            self.state_init = ca.DM([self.current_x, self.current_y, self.current_yaw])
-            self.state_target = ca.DM([self.pub_x, self.pub_y, self.pub_yaw])
+            ###
             if( ca.norm_2(self.state_init - self.state_target) <= 2) : 
                 # self.tick = self.tick + 1
                 if(abs(self.ck_test)) > 0.10:
