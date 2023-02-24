@@ -1,9 +1,10 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
-from nav_msgs.msg import Odometry
+from geometry_msgs.msg import Vector3
+
 try :
-    from test_mpc import cubic_spline_planner
+    from elephant_publish_pos import cubic_spline_planner
 except :
     pass
 try :
@@ -15,7 +16,7 @@ import casadi as ca
 ##########################
 
 # trajactory
-def get_straight_course(dl):
+def get_straight_course(dl):      # use for two point
     ax = [0.0 ,3.0,6.0,10.0,10.3,10.3,10.38,10.38]
     ay = [0.0, 0.0,0.0,0.0,0.21,1.58,2.5,4.14]
     cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(
@@ -28,14 +29,6 @@ def get_switch_back_course(dl):
     ay = [0.0, 0.21]
     ax2 = [10, 10.21, 10.08]
     ay2 = [0.21, 1.58, 4.14]
-    # ax = [0.0, 1.0, 1.99, 4.0, 5.55,6.76] # 
-    # ay = [0.0, -1.66,-2.92, -2.53, -1.8, 0.24] # 
-    # ax = [6.76, 5.55,4.0, 1.99, 1.0, 0.0] #  
-    # ay = [ 0.24, -1.8,-2.53, -2.92, -1.66, 0.0] # 
-    # ax = [4.0, 1.99, 1.0, 0.0] # 6.76, 5.55, 
-    # ay = [-2.53, -2.92, -1.66, 0.0] # 0.24, -1.8, 
-    # ax = [0.0, 1.8, 0.0,-1.8,0.0]
-    # ay = [0.0, 1.8, 3.6,1.8,0.0]
     cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(
         ax, ay, ds=dl)
 
@@ -71,8 +64,8 @@ class pub_class(Node):
         self.pub_timer = self.create_timer(0.05, self.pub_timer_callback)
         self.publisher_ = self.create_publisher(Float32MultiArray, 'mpc_position', 100)
         self.subscription = self.create_subscription(
-            Odometry,
-            'odom',
+            Vector3,
+            '/odom/data',
             self.feedback_callback,
             10)
         self.cx, self.cy, self.cyaw, self.ck = get_straight_course(0.1)
@@ -90,14 +83,9 @@ class pub_class(Node):
         self.ck_test = 0.0
         
     def feedback_callback(self, msg):
-        self.current_x = msg.pose.pose.position.x
-        self.current_y = msg.pose.pose.position.y
-        ox =  msg.pose.pose.orientation.x
-        oy =  msg.pose.pose.orientation.y
-        oz =  msg.pose.pose.orientation.z
-        ow =  msg.pose.pose.orientation.w
-        row, pitch , yaw = euler_from_quaternion(ox,oy,oz,ow)
-        self.current_yaw = yaw
+        self.current_x = msg.x
+        self.current_y = msg.y
+        self.current_yaw = msg.z
     def pub_timer_callback(self):
         msg = Float32MultiArray()
         if self.tick <= len(self.cx) - 1 : 

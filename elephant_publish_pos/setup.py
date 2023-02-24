@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'elephant_control'
+package_name = 'elephant_publish_pos'
 
 setup(
     name=package_name,
@@ -20,9 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'mpc_node = elephant_control.mpc_node:main',
-            'test_controller = elephant_control.controller:main',
-            'mpc_node_open_loop = elephant_control.mpc_node_open_loop:main',
+            'test_pub = elephant_publish_pos.mpc_pos_pub:main',
+            'test_pub_back = elephant_publish_pos.mpc_pos_pub_back:main',
         ],
     },
 )

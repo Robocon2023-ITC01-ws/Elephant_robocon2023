@@ -47,9 +47,9 @@ class ros_node(Node):
     def velocity_callback(self):
         if self.control_type == False :
             pub_msg = Float32MultiArray()
-            Vx = self.kinematic.map(self.vx, -1, 1,-2,2)
-            Vy = self.kinematic.map(self.vy, -1, 1, -2, 2)
-            Vth = self.kinematic.map(self.omega, -1,1,-np.pi, np.pi)
+            Vx = self.kinematic.map(self.vx, -1, 1,-1,1)
+            Vy = self.kinematic.map(self.vy, -1, 1, -1, 1)
+            Vth = self.kinematic.map(self.omega, -1,1,-1, 1)
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])

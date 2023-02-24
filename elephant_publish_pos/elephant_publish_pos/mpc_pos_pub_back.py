@@ -1,8 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
-from nav_msgs.msg import Odometry
-from test_mpc import cubic_spline_planner
+from geometry_msgs.msg import Vector3
+from elephant_publish_pos import cubic_spline_planner
 import math
 import casadi as ca
 ##########################
@@ -64,8 +64,8 @@ class pub_class(Node):
         self.pub_timer = self.create_timer(0.05, self.pub_timer_callback)
         self.publisher_ = self.create_publisher(Float32MultiArray, 'mpc_position', 100)
         self.subscription = self.create_subscription(
-            Odometry,
-            'odom',
+            Vector3,
+            '/odom/data',
             self.feedback_callback,
             10)
         self.cx, self.cy, self.cyaw, ck = get_straight_course(0.1)
@@ -82,14 +82,9 @@ class pub_class(Node):
         self.current_yaw = 0
         
     def feedback_callback(self, msg):
-        self.current_x = msg.pose.pose.position.x
-        self.current_y = msg.pose.pose.position.y
-        ox =  msg.pose.pose.orientation.x
-        oy =  msg.pose.pose.orientation.y
-        oz =  msg.pose.pose.orientation.z
-        ow =  msg.pose.pose.orientation.w
-        row, pitch , yaw = euler_from_quaternion(ox,oy,oz,ow)
-        self.current_yaw = yaw
+        self.current_x = msg.x
+        self.current_y = msg.y
+        self.current_yaw = msg.z
     def pub_timer_callback(self):
         msg = Float32MultiArray()
         if self.tick <= len(self.cx) - 1 : 

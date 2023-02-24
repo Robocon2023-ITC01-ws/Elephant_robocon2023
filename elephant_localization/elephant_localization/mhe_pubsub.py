@@ -88,8 +88,8 @@ class ros_node(Node):
         self.yaw = -self.yaw
 
     def integral(self):
-        dx = (self.command_vel[0]*np.cos(self.yaw) + self.command_vel[1]*np.sin(self.yaw))*self.dt 
-        dy = (-self.command_vel[0]*np.sin(self.yaw) + self.command_vel[1]*np.cos(self.yaw))*self.dt
+        dx = (self.command_vel[0]*np.cos(self.yaw) - self.command_vel[1]*np.sin(self.yaw))*self.dt 
+        dy = (self.command_vel[0]*np.sin(self.yaw) + self.command_vel[1]*np.cos(self.yaw))*self.dt
         self.position[0] = dx + self.position[0]
         self.position[1] = dy + self.position[1]
         self.current_state = np.array([self.position[0], self.position[1],self.yaw])
