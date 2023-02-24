@@ -7,6 +7,7 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
+from geometry_msgs.msg import Vector3
 
 class ros_node(Node):
     def __init__(self):
@@ -22,6 +23,7 @@ class ros_node(Node):
         self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,10)
         self.twist_sub = self.create_subscription(Twist, '/cmd_vel', self.twist_callback,10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
+        self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
@@ -35,8 +37,19 @@ class ros_node(Node):
             self.control_type = True
         elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
             self.control_type = False
-
-      
+        if self.control_type == True : 
+            if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
+                msg = Vector3()
+                msg.x = -4.7
+                msg.y = 4.3
+                msg.z = 0.0
+                self.joy_pos_pub.publish(msg)
+            elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
+                msg = Vector3()
+                msg.x = 5.3
+                msg.y = 4.3
+                msg.z = 0.0
+                self.joy_pos_pub.publish(msg)
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :

@@ -22,6 +22,7 @@ setup(
         'console_scripts': [
             'test_pub = elephant_publish_pos.mpc_pos_pub:main',
             'test_pub_back = elephant_publish_pos.mpc_pos_pub_back:main',
+            'test_pos_pub = elephant_publish_pos.position_pub:main',
         ],
     },
 )

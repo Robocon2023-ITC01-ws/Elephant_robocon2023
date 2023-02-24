@@ -93,6 +93,9 @@ class position_class(Node):
         self.pub_x = 0.0
         self.pub_y = 0.0
         self.pub_yaw = 0.0
+        self.pos_x = 0.0
+        self.pos_y = 0.0
+        self.pos_yaw = 0.0
         self.slow_speed = 1.0
         ############
         self.current_x = 0.0
@@ -102,6 +105,7 @@ class position_class(Node):
         self.run = False
     
     def joy_position_cb(self, joy_msg):
+        print("recieve")
         if (joy_msg.x != self.pos_x or joy_msg.y != self.pos_y or joy_msg.z != self.pos_yaw):
             self.pos_x = joy_msg.x
             self.pos_y = joy_msg.y
