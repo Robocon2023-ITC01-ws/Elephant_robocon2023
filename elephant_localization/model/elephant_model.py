@@ -4,7 +4,7 @@ import casadi as ca
 
 class ElephantModel():
     def __init__(self):
-        self.r = 0.0625 #[m]
+        self.r = 0.06 #[m]
         self.d = 0.55 # [m]
         
     def forward_matrix(self, type = None):
