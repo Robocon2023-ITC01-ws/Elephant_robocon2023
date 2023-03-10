@@ -15,11 +15,11 @@ except :
 import casadi as ca
 
 ##########################
-x_left = -4.2
-y_left = 1.0
-x_right = 4.7
-y_right = 1.0
-
+x_left = -1.45		
+y_left = 1.53		
+x_right = 0.74
+y_right = 1.53
+distant = 0.8
 
 # trajactory
 def two_point_trajectory(dl,x0,y0,x1,y1):      # use for two points
@@ -116,8 +116,8 @@ class position_class(Node):
     def joy_position_cb(self, joy_msg):
         print("recieve")
         if (joy_msg.x != self.pos_x or joy_msg.y != self.pos_y or joy_msg.z != self.pos_yaw):
-            self.pos_x = joy_msg.x      ## here is the problem too
-            self.pos_y = joy_msg.y
+            self.pos_y = joy_msg.x      ## i decide to use normal plane here for easy to analyse position and conditional
+            self.pos_x = -1 * joy_msg.y
             self.pos_yaw = joy_msg.z
             ## cubic cubic_spline_planner ## here
             if (self.current_x < x_left and self.current_y > y_left):   ## surface 1
@@ -131,7 +131,7 @@ class position_class(Node):
                 elif(self.pos_y > y_right and self.pos_x > x_right):
                     ## four point
                     self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_left - y_left/2,y_left/2
-                                          ,x_right - y_right/2,y_right/2,self.pos_x,self.pos_y)
+                                          ,x_right + y_right/2,y_right/2,self.pos_x,self.pos_y)
             elif(self.current_x < x_left and self.current_y < y_left):  ## surface 2
                 if(self.pos_x < x_left):
                     ## two point 
@@ -141,7 +141,7 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_x > x_right and self.pos_y > y_right):
                     ## three point 
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right - y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
                                            ,self.pos_x,self.pos_y)
             elif(self.current_x > x_left and self.current_x < x_right and self.current_y < y_left): ## surface 3
                 if (self.pos_y < y_left):
@@ -153,7 +153,7 @@ class position_class(Node):
                                            ,self.pos_x,self.pos_y)
                 elif(self.pos_x > x_right and self.pos_y > y_right):
                     # thee point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right - y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
                                            ,self.pos_x,self.pos_y)
             elif(self.current_x > x_right and self.current_y < y_right):    ## surface 4
                 if(self.pos_y < y_right):
@@ -172,11 +172,11 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_y < y_right and self. pos_x < x_right):
                     # thee point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right - y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
                                            ,self.pos_x,self.pos_y)
                 elif(self.pos_y > y_right and self. pos_x < x_left):
                     ## four point
-                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_right - y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
                                           ,x_left - y_left/2,y_left/2,self.pos_x,self.pos_y)
             self.slow_speed = 1.0
             self.run = True     ## state for publish mpc_position
@@ -211,12 +211,12 @@ class position_class(Node):
         print(self.state_target)
         if self.run == True :
             ###
-            if( ca.norm_2(self.state_init - self.state_target) <= 2) : 
+            if( ca.norm_2(self.state_init - self.state_target) <= 1.5) : 
                 # self.tick = self.tick + 1
                 if(abs(self.ck_test)) > 0.10:
                     self.tick = self.tick + 1
                 else : 
-                    self.tick = self.tick + 2
+                    self.tick = self.tick + 1
 
 
 def main(args=None):

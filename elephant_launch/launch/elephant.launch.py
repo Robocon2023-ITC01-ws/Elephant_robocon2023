@@ -60,7 +60,7 @@ def generate_launch_description():
         Node(package='elephant_can',executable='teleop'),
         Node(package='elephant_control',executable='test_controller'),
         Node(package='joy', executable='joy_node'),
-        # Node(package='elephant_publish_pos', executable='test_pos_pub'),
+        Node(package='elephant_publish_pos', executable='test_pos_pub'),
 
     ])
 

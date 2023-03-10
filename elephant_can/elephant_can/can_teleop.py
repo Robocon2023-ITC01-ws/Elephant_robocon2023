@@ -9,6 +9,8 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Vector3
 
+gain = 2
+
 class ros_node(Node):
     def __init__(self):
         super().__init__('teleop_node')
@@ -20,7 +22,7 @@ class ros_node(Node):
 
         self.control_type = True
 
-        self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,10)
+        self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,20)
         self.twist_sub = self.create_subscription(Twist, '/cmd_vel', self.twist_callback,10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
@@ -40,14 +42,14 @@ class ros_node(Node):
         if self.control_type == True : 
             if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
                 msg = Vector3()
-                msg.x = -4.7
-                msg.y = 4.3
+                msg.x = 4.2        ##  
+                msg.y = -1.76
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
             elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
                 msg = Vector3()
-                msg.x = 5.3
-                msg.y = 4.3
+                msg.x = 4.76
+                msg.y = 1.65
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
 
@@ -60,8 +62,8 @@ class ros_node(Node):
     def velocity_callback(self):
         if self.control_type == False :
             pub_msg = Float32MultiArray()
-            Vx = self.kinematic.map(self.vx, -1, 1,-1,1)
-            Vy = self.kinematic.map(self.vy, -1, 1, -1, 1)
+            Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
+            Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
             Vth = self.kinematic.map(self.omega, -1,1,-1, 1)
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
