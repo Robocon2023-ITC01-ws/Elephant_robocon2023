@@ -47,6 +47,7 @@ class Odom_Wheel(Node):
         self.publish_wheel_odom = self.create_publisher(Odometry, 'wheel_odom', 10)
         self.init_param()
         ## 
+        self.covariance_init = True
     
     def msg_sub(self,msg):
         self.u = ca.DM([msg.data[0], msg.data[1], msg.data[2], msg.data[3]])
@@ -72,15 +73,17 @@ class Odom_Wheel(Node):
         ## 
         quatOdom.twist.twist.angular.z = (float)(self.speed_init[2])
 
-        for i in range (36):
-            if(i == 0 or i == 7 or i == 14):
-                quatOdom.pose.covariance[i] = 0.01
-            elif (i == 21 or i == 28 or i== 35):
-                quatOdom.pose.covariance[i] += 0.1
-            else :
-                quatOdom.pose.covariance[i] = 0
+        if (self.covariance_init):
+            self.covariance_init = False
+            for i in range (36):
+                if(i == 0 or i == 7 or i == 14):
+                    quatOdom.pose.covariance[i] = 0.01
+                elif (i == 21 or i == 28 or i== 35):
+                    quatOdom.pose.covariance[i] += 0.1
+                else :
+                    quatOdom.pose.covariance[i] = 0
         
-        self.get_logger().info("pub!!")
+        # self.get_logger().info("pub!!")
         print(self.state_init)
         self.publish_wheel_odom.publish(quatOdom)
         
