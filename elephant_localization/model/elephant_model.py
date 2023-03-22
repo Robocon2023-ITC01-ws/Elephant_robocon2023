@@ -4,18 +4,26 @@ import casadi as ca
 
 class ElephantModel():
     def __init__(self):
-        self.r = 0.0625 #[m]
+        self.r = 0.06 #[m]
         self.d = 0.55 # [m]
         
     def forward_matrix(self, type = None):
         if type == "numpy":
+<<<<<<< HEAD
             J_for = (0.7071/self.r)*np.array([
+=======
+            J_for = (self.r/(4*0.7071))*np.array([
+>>>>>>> 1f65791bc9e8c28252514dfdc8e5149a056cb1ae
                 [1, 1, -1, -1],
                 [1, -1, -1, 1],
                 [-1/(2*self.d), -1/(2*self.d), -1/(2*self.d), -1/(2*self.d)]
             ])
         elif type == "sym":
+<<<<<<< HEAD
             J_for = (0.7071/self.r)*ca.DM([
+=======
+            J_for = (self.r/(4*0.7071))*ca.DM([
+>>>>>>> 1f65791bc9e8c28252514dfdc8e5149a056cb1ae
                 [1, 1, -1, -1],
                 [1, -1, -1, 1],
                 [-1/(2*self.d), -1/(2*self.d), -1/(2*self.d), -1/(2*self.d)]
@@ -23,7 +31,7 @@ class ElephantModel():
         return J_for
     
     def inverse_matrix(self):
-        J_inv = (self.r/(4*0.7071))*np.array([
+        J_inv = (0.7071/self.r)*np.array([
         [1,1,-2*self.d],
         [1,-1,-2*self.d],
         [-1,-1,-2*self.d],

@@ -8,6 +8,10 @@ import os
 # Ros2 message
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Vector3
+from sensor_msgs.msg import Temperature
+from sensor_msgs.msg import MagneticField
+from std_srvs.srv import Empty
+from std_srvs.srv import Trigger 
 
 import numpy as np
 import math
@@ -28,6 +32,8 @@ class IMU_Node(Node):
 
         # Internal variables
         self.imu_data_seq_counter = 0
+        self.imu_magnetometer_seq_counter = 0
+        self.imu_temperature_seq_counter = 0
         self.stop_request = False 
 
         # Publisher in Vector3 message
@@ -36,6 +42,10 @@ class IMU_Node(Node):
         # Publisher in Imu message
         self.imu_pub2 = self.create_publisher(Imu, "/imu/data2", 1)
         self.timer_data2 = self.create_timer(0.001, self.imu_publisher2)
+        # create service
+        self.reset_imu_device = self.create_service(Empty,'imu/reset_device',self.callback_reset_imu_device)
+        self.calibration_imu_staus = self.create_service( Trigger,'imu/calibration_status', self.callback_calibration_imu_status)
+
         self.set_imu_configuration()
 
 
@@ -60,7 +70,7 @@ class IMU_Node(Node):
             'NDOF' : NDOF,
         }
 
-        self.operation_mode = switcher.get(self.operation_mode_str, 'IMU')
+        self.operation_mode = switcher.get(self.operation_mode_str, 'NDOF_FMC_OFF')
 
         switcher = {
             'EXTERNAL' : EXTERNAL_OSCILLATOR,
@@ -102,6 +112,12 @@ class IMU_Node(Node):
         else:
             self.get_logger().warn("Unable to configure axis")
 
+        status_calibration = self.load_calibration_from_file()
+
+        if status_calibration == RESPONSE_OK:
+            self.get_logger().info("Calibration loaded successfully")
+        else:
+            self.get_logger().info("Calibration not detected. IMU will use default calibration")
 
         status_oscillator = self.bno055.set_oscillator(oscillator_type = self.oscillator)
         if status_oscillator == RESPONSE_OK:
@@ -122,7 +138,29 @@ class IMU_Node(Node):
         else:
             self.get_logger().warn("The IMU was not configured correctly. It may not work")
             
+    def load_calibration_from_file(self):
 
+        status = -1
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+
+        # Read calibration from file
+        try:
+            binary_file = open(str(dir_path) + "/" + self.operation_mode_str + "_calibration", "rb")
+            calibration_data = binary_file.read()
+            binary_file.close()
+            calibration_exists = True
+        except:
+            calibration_data = 0
+            calibration_exists = False
+
+
+        # Load calibration into the IMU    
+        if calibration_exists == True:
+            status = self.bno055.set_calibration(calibration_data)
+        else:
+            status = RESPONSE_ERROR
+        
+        return status
     def reset_imu(self):
         status = self.bno055.reset_imu()
         if status == RESPONSE_OK:
@@ -199,7 +237,46 @@ class IMU_Node(Node):
 
         #self.imu_data_seq_counter =+ 1
         self.imu_pub2.publish(imu_data2)
+    def callback_reset_imu_device(self, req, result):
+        
+        self.get_logger().info("====================")
+        self.get_logger().info("Service: Reseting IMU...")
+        self.stop_request = True
+        time.sleep(1)
+        self.reset_imu()
+        self.set_imu_configuration()
+        self.stop_request = False
+        self.get_logger().info("Service: IMU reset completed!")
 
+        # result = Empty()
+        return result
+    def callback_calibration_imu_status(self, req, result):
+
+        self.stop_request = True
+        # Delay proportional to the frequency of the node
+        # time.sleep(1/(float)(self.frequency))
+        time.sleep(0.05)
+        calibration_status, status = self.bno055.get_calibration_status()
+        self.stop_request = False
+
+        # result = TriggerResponse()
+
+        if status == RESPONSE_OK:
+            
+            sys = " [System: " + str(calibration_status[0]) + "]"
+            gyr = " [Gyroscope: " + str(calibration_status[1]) + "]"
+            acc = " [Accelerometer: " + str(calibration_status[2]) + "]"
+            mag = " [Magnetometer: " + str(calibration_status[3]) + "]" 
+
+            result.message = sys + gyr + acc + mag
+            result.success = True
+
+        else:
+            self.logwarn("Unable to read IMU calibration")
+            result.message = "Unable to read IMU calibration"
+            result.success = False
+
+        return result
 def main(args=None):
     rclpy.init(args=args)
     pub_node = IMU_Node()
