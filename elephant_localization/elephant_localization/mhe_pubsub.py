@@ -64,7 +64,7 @@ class ros_node(Node):
         # ROS2 Publisher and Subscriber
         self.imu_subscriber = self.create_subscription(Imu, "/imu/data2", self.imu_callback, 100)
         self.control_feedback = self.create_subscription(Float32MultiArray, "feedback", self.control_callback, 100)
-        self.timer_integral = self.create_timer(self.timer, self.integral)
+        self.positon_feedback = self.create_subscription(Odometry, "wheel_odom", self.position_callback, 100)
         self.odom_publisher = self.create_publisher(Vector3, "/odom/data",10)
         self.odom_timer = self.create_timer(self.timer, self.odom_callback)
 
@@ -85,13 +85,17 @@ class ros_node(Node):
         self.q[3] = imu_msg.orientation.w
 
         self.roll, self.pitch, self.yaw = self.elephant.euler_from_quaternion(self.q[0], self.q[1], self.q[2], self.q[3])
-        self.yaw = -self.yaw
 
-    def integral(self):
-        dx = (self.command_vel[0]*np.cos(self.yaw) - self.command_vel[1]*np.sin(self.yaw))*self.dt 
-        dy = (self.command_vel[0]*np.sin(self.yaw) + self.command_vel[1]*np.cos(self.yaw))*self.dt
-        self.position[0] = dx + self.position[0]
-        self.position[1] = dy + self.position[1]
+    def position_callback(self, odom_msg):
+        self.position[0] = odom_msg.pose.pose.position.x
+        self.position[1] = odom_msg.pose.pose.position.y
+        pos_roll, pos_pitch, pos_yaw = self.elephant.euler_from_quaternion(
+            odom_msg.pose.pose.orientation.x,
+            odom_msg.pose.pose.orientation.y,
+            odom_msg.pose.pose.orientation.z,
+            odom_msg.pose.pose.orientation.w
+        )
+        self.position[2] = pos_yaw
         self.current_state = np.array([self.position[0], self.position[1],self.yaw])
 
     def odom_callback(self):
@@ -135,7 +139,6 @@ class ros_node(Node):
             self.sol_Umhe = ca.reshape(self.sol_mhe['x'][self.nx*(self.Nmhe+1):], self.nu, self.Nmhe)
             self.X_mhe = np.concatenate([self.sol_Xmhe[:, 1:], self.sol_Xmhe[:,-1:]],axis=1).T
             self.U_mhe = np.concatenate([self.sol_Umhe[:, 1:], self.sol_Umhe[:,-1:]],axis=1).T
-        print(np.round(self.sol_Xmhe.full()[:,self.Nmhe],3))
         odom_msg.x = float(np.round(self.sol_Xmhe[0],3))
         odom_msg.y = float(np.round(self.sol_Xmhe[1],3))
         odom_msg.z = float(np.round(self.sol_Xmhe[2],3))

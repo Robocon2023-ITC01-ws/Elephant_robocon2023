@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-        'wheel_odometry = elephant_odom.odom_wheel:main',
+            'wheel_odometry=elephant_odom.odom:main',
         ],
     },
 )
