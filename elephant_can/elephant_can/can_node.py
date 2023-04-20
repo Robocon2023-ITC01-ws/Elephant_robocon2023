@@ -51,7 +51,7 @@ class can_class(Node):
         for i in range(1):
             can_msg = self.bus.recv(0.1)
             try :
-                if(can_msg.arbitration_id != None):
+                if(can_msg != None):
                     if can_msg.arbitration_id == 0x333:
                         self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
                         self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
@@ -59,7 +59,7 @@ class can_class(Node):
                                             ####################
                         pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
                         self.publisher_.publish(pub_msg)
-            except can_msg == None :
+            except can.CanOperationError :
                 pass
 
 def main(args=None):
