@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
 
+from std_msgs.msg import UInt16MultiArray
+from std_msgs.msg import Float32MultiArray
 import can 
 ############ function ###############
 def map(Input, Min_Input, Max_Input, Min_Output, Max_Output):
@@ -12,7 +13,7 @@ class can_class(Node):
     def __init__(self):
         super().__init__('can_node_test')
         self.bus = can.interface.Bus(channel='can0', interface='socketcan',bitrate=1000000)
-        self.publisher_ = self.create_publisher(Float32MultiArray, 'feedback', 100)
+        self.publisher_ = self.create_publisher(UInt16MultiArray, 'tick_feedback', 20)
         self.can_timer = self.create_timer(0.001, self.can_callback)
         self.subscription = self.create_subscription(
             Float32MultiArray,
@@ -21,8 +22,7 @@ class can_class(Node):
             10)
         self.TxData = [128,0,128,0,128,0,128,0]
         
-        self.V_back = [32768,32768,32768,32768]
-        self.V_back_p = [0.0,0.0,0.0,0.0]
+        self.Tick = [0,0,0,0]
         self.yaw = 0
         self.pitch = 0
         self.ax = 0
@@ -43,44 +43,21 @@ class can_class(Node):
             self.TxData[6] = ((V4_out & 0xFF00) >> 8)
             self.TxData[7] = (V4_out & 0x00FF)
     def can_callback(self):
-        pub_msg = Float32MultiArray()
+        pub_msg = UInt16MultiArray()
         msg = can.Message(arbitration_id=0x111,
                 data=self.TxData,
                 is_extended_id=False)
         self.bus.send(msg,0.01)
-        for i in range(2):
+        for i in range(1):
             can_msg = self.bus.recv(0.1)
             if(can_msg.arbitration_id != None):
-                if can_msg.arbitration_id == 0x155:
-                    self.V_back[0] = can_msg.data[0] << 8 | can_msg.data[1]
-                    self.V_back[1] = can_msg.data[2] << 8 | can_msg.data[3]
-                elif can_msg.arbitration_id == 0x140:
-                    self.V_back[2] = can_msg.data[0] << 8 | can_msg.data[1]
-                    self.V_back[3] = can_msg.data[2] << 8 | can_msg.data[3]
+                if can_msg.arbitration_id == 0x333:
+                    self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
+                    self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
+                    self.Tick[2] = can_msg.data[4] << 8 | can_msg.data[5]
                                         ####################
-                    self.V_back_p[0] = map(self.V_back[0],0,65536,-100,100)
-                    self.V_back_p[1] = map(self.V_back[1],0,65536,-100,100)
-                    self.V_back_p[2] = map(self.V_back[2],0,65536,-100,100)
-                    self.V_back_p[3] = map(self.V_back[3],0,65536,-100,100)
-                # elif can_msg.arbitration_id == 0x010:
-                #     back_yaw = can_msg.data[0] << 8 | can_msg.data[1]
-                #     back_pitch = can_msg.data[2] << 8 | can_msg.data[3]
-                #     back_ax = can_msg.data[4] << 8 | can_msg.data[5]
-                #     back_ay = can_msg.data[6] << 8 | can_msg.data[7]
-
-                #     self.yaw = map(back_yaw,0,65536,0,360)
-                #     self.pitch = map(back_pitch,0,65536,0,360)
-                #     self.ax = map(back_ax,0,65536,-100,100)
-                #     self.ay = map(back_ay,0,65536,-100,100)
-
-        for i in range(4):
-            if self.V_back_p[i] < 0.01 and self.V_back_p[i] > -0.01:
-                self.V_back_p[i] = 0
-        pub_msg.data = [(float)(self.V_back_p[0]),(float) (self.V_back_p[1]),(float) (self.V_back_p[2]),(float)(self.V_back_p[3])]
-                        
-        self.publisher_.publish(pub_msg)
-
-
+                    pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
+                    self.publisher_.publish(pub_msg)
 
 def main(args=None):
     rclpy.init(args=args)
