@@ -50,14 +50,17 @@ class can_class(Node):
         self.bus.send(msg,0.01)
         for i in range(1):
             can_msg = self.bus.recv(0.1)
-            if(can_msg.arbitration_id != None):
-                if can_msg.arbitration_id == 0x333:
-                    self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
-                    self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
-                    self.Tick[2] = can_msg.data[4] << 8 | can_msg.data[5]
-                                        ####################
-                    pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
-                    self.publisher_.publish(pub_msg)
+            try :
+                if(can_msg.arbitration_id != None):
+                    if can_msg.arbitration_id == 0x333:
+                        self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
+                        self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
+                        self.Tick[2] = can_msg.data[4] << 8 | can_msg.data[5]
+                                            ####################
+                        pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
+                        self.publisher_.publish(pub_msg)
+            except can_msg == None :
+                pass
 
 def main(args=None):
     rclpy.init(args=args)
