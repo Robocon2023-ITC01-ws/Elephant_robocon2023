@@ -59,8 +59,9 @@ class can_class(Node):
                                             ####################
                         pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
                         self.publisher_.publish(pub_msg)
+                else :
+                    self.get_logger().error('time out on msg recv!!!')
             except can.CanOperationError :
-                print("time out on msg recv!!!")
                 pass
 
 def main(args=None):
