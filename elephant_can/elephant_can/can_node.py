@@ -47,7 +47,10 @@ class can_class(Node):
         msg = can.Message(arbitration_id=0x111,
                 data=self.TxData,
                 is_extended_id=False)
-        self.bus.send(msg,0.01)
+        try :
+            self.bus.send(msg,0.01)
+        except can.CanError :
+            pass
         for i in range(1):
             can_msg = self.bus.recv(0.1)
             try :
