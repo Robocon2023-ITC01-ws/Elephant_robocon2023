@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'wheel_odometry=elephant_odom.odom:main',
+            'internal_wheel_odometry=elephant_odom.internal_odom:main',
         ],
     },
 )

@@ -3,6 +3,7 @@ from rclpy.node import Node
 
 from std_msgs.msg import UInt16MultiArray
 from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32
 import can 
 ############ function ###############
 def map(Input, Min_Input, Max_Input, Min_Output, Max_Output):
@@ -20,7 +21,13 @@ class can_class(Node):
             'pub_speed',
             self.listener_callback,
             10)
+        self.shooter_subscription = self.create_subscription(
+            Float32,
+            'shooter',
+            self.sh_listener_callback,
+            10)
         self.TxData = [128,0,128,0,128,0,128,0]
+        self.TxData2 = [0,0,0]
         
         self.Tick = [0,0,0,0]
         self.yaw = 0
@@ -28,12 +35,31 @@ class can_class(Node):
         self.ax = 0
         self.ay = 0
         ############
+        self.pub_shoot_speed = 0
         
+    def sh_listener_callback(self, shouter_msg):
+        if (shouter_msg.data > 10.0):
+            self.TxData2[2] = 1
+            shoot_speed = (int)(map(shouter_msg.data,0,1500,0,65535))
+        elif (shouter_msg.data < -10.0):
+            self.TxData2[2] = 0
+            shoot_speed = (int)(map(shouter_msg.data,0,-1500,0,65535))
+        else :
+            self.TxData2[2] = 0
+            shoot_speed = 0
+        
+        self.TxData2[0] = ((shoot_speed & 0xFF00) >> 8)
+        self.TxData2[1] = (shoot_speed & 0x00FF)
+        self.shoot_msg = can.Message(arbitration_id=0x222,
+                data=self.TxData2, dlc=3, 
+                is_extended_id=False)
+        self.pub_shoot_speed = 1
+
     def listener_callback(self, msg):
-            V1_out  = (int)( map(msg.data[0], -100, 100, 0, 65536))
-            V2_out  = (int)( map(msg.data[1], -100, 100, 0, 65536))
-            V3_out  = (int)( map(msg.data[2], -100, 100, 0, 65536))
-            V4_out  = (int)( map(msg.data[3], -100, 100, 0, 65536))
+            V1_out  = (int)( map(msg.data[0], -100, 100, 0, 65535))
+            V2_out  = (int)( map(msg.data[1], -100, 100, 0, 65535))
+            V3_out  = (int)( map(msg.data[2], -100, 100, 0, 65535))
+            V4_out  = (int)( map(msg.data[3], -100, 100, 0, 65535))
             self.TxData[0] = ((V1_out & 0xFF00) >> 8)
             self.TxData[1] = (V1_out & 0x00FF)
             self.TxData[2] = ((V2_out & 0xFF00) >> 8)
@@ -48,14 +74,28 @@ class can_class(Node):
                 data=self.TxData,
                 is_extended_id=False)
         try :
+            if (self.pub_shoot_speed):
+                self.pub_shoot_speed = 0
+                self.bus.send(self.shoot_msg,0.01)
             self.bus.send(msg,0.01)
+            finish_recv = True
         except can.CanError :
             pass
-        for i in range(1):
-            can_msg = self.bus.recv(0.1)
+        while(finish_recv):  ## just for test
             try :
+                can_msg = self.bus.recv(0.01)
                 if(can_msg != None):
-                    if can_msg.arbitration_id == 0x333:
+                    if can_msg.arbitration_id == 0x155:
+                        self.V_back[0] = can_msg.data[0] << 8 | can_msg.data[1]
+                        self.V_back[1] = can_msg.data[2] << 8 | can_msg.data[3]
+                    elif can_msg.arbitration_id == 0x140:
+                        finish_recv = False
+                        self.V_back[2] = can_msg.data[0] << 8 | can_msg.data[1]
+                        self.V_back[3] = can_msg.data[2] << 8 | can_msg.data[3]
+                        pub_msg.data = [(self.V_back[0]), (self.V_back[1]), (self.V_back[3]),self.V_back[4]]         
+                        self.publisher_.publish(pub_msg)
+                    elif can_msg.arbitration_id == 0x333:
+                        finish_recv = False
                         self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
                         self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
                         self.Tick[2] = can_msg.data[4] << 8 | can_msg.data[5]
