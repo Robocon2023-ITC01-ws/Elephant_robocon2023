@@ -15,6 +15,7 @@ class can_class(Node):
         super().__init__('can_node_test')
         self.bus = can.interface.Bus(channel='can0', interface='socketcan',bitrate=1000000)
         self.publisher_ = self.create_publisher(UInt16MultiArray, 'tick_feedback', 20)
+        self.laser_publisher_ = self.create_publisher(Float32, 'laser_distant', 10)
         self.can_timer = self.create_timer(0.001, self.can_callback)
         self.subscription = self.create_subscription(
             Float32MultiArray,
@@ -70,6 +71,7 @@ class can_class(Node):
             self.TxData[7] = (V4_out & 0x00FF)
     def can_callback(self):
         pub_msg = UInt16MultiArray()
+        laser_msg = Float32()
         msg = can.Message(arbitration_id=0x111,
                 data=self.TxData,
                 is_extended_id=False)
@@ -99,8 +101,12 @@ class can_class(Node):
                         self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
                         self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
                         self.Tick[2] = can_msg.data[4] << 8 | can_msg.data[5]
+                        laser_int = can_msg.data[6] << 8 | can_msg.data[7]
+                        laser_float = map(laser_int,0,4096,0.5,10.0)   ##  from 0.5m to 10m
                                             ####################
-                        pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]         
+                        pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2])]   
+                        laser_msg.data = laser_float
+                        self.laser_publisher_.publish(laser_msg)
                         self.publisher_.publish(pub_msg)
                 else :
                     self.get_logger().error('time out on msg recv!!!')
