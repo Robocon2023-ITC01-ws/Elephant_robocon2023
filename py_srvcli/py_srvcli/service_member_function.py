@@ -4,7 +4,7 @@ from shooter_interfaces.srv import Shooterdata
 from std_msgs.msg import Float32
 from time import sleep
 try :
-    from shooter_service import shooter_lib
+    from py_srvcli import shooter_lib
 except :
     pass
 try :

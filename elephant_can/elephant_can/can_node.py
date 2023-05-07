@@ -88,13 +88,13 @@ class can_class(Node):
                 can_msg = self.bus.recv(0.01)
                 if(can_msg != None):
                     if can_msg.arbitration_id == 0x155:
-                        self.V_back[0] = can_msg.data[0] << 8 | can_msg.data[1]
-                        self.V_back[1] = can_msg.data[2] << 8 | can_msg.data[3]
+                        self.Tick[0] = can_msg.data[0] << 8 | can_msg.data[1]
+                        self.Tick[1] = can_msg.data[2] << 8 | can_msg.data[3]
                     elif can_msg.arbitration_id == 0x140:
                         finish_recv = False
-                        self.V_back[2] = can_msg.data[0] << 8 | can_msg.data[1]
-                        self.V_back[3] = can_msg.data[2] << 8 | can_msg.data[3]
-                        pub_msg.data = [(self.V_back[0]), (self.V_back[1]), (self.V_back[3]),self.V_back[4]]         
+                        self.Tick[2] = can_msg.data[0] << 8 | can_msg.data[1]
+                        self.Tick[3] = can_msg.data[2] << 8 | can_msg.data[3]
+                        pub_msg.data = [(self.Tick[0]), (self.Tick[1]), (self.Tick[2]),self.Tick[3]]         
                         self.publisher_.publish(pub_msg)
                     elif can_msg.arbitration_id == 0x333:
                         finish_recv = False
@@ -110,6 +110,7 @@ class can_class(Node):
                         self.publisher_.publish(pub_msg)
                 else :
                     self.get_logger().error('time out on msg recv!!!')
+                    finish_recv = False
             except can.CanOperationError :
                 pass
 
