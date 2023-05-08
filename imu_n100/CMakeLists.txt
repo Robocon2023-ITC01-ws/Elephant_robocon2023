@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.8)
 project(imu_n100)
+<<<<<<< HEAD
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")  
+=======
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")  
+>>>>>>> 7e69def28d7517cd5c9d78ff1b705e0f208d981c
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()

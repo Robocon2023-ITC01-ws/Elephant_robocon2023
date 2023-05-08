@@ -8,6 +8,7 @@ from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Vector3
+from std_msgs.msg import Float32
 
 gain = 2
 
@@ -26,14 +27,37 @@ class ros_node(Node):
         self.twist_sub = self.create_subscription(Twist, '/cmd_vel', self.twist_callback,10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
+
+        self.shooter_speed_pub = self.create_publisher(Float32, 'shooter', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
+
+        self.store_speed = 0.0
+        self.reload = 0
 
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]
         self.vy = joy_msg.axes[0]
         self.omega = -1 * joy_msg.axes[3]
+
+        shoot_msg = Float32()
+
+        if (joy_msg.buttons[2] == 1):
+            self.store_speed = (float)(self.kinematic.map((float)(joy_msg.axes[2]),1.0,-1.0,0.0,-1000.0))
+            shoot_msg.data = self.store_speed
+            self.shooter_speed_pub.publish(shoot_msg)
+        if (joy_msg.buttons[1] == 1):
+            shoot_msg.data = self.store_speed * -1.0
+            self.reload = 1
+            self.shooter_speed_pub.publish(shoot_msg)
+
+
+        elif (joy_msg.buttons[1] == 0 and self.reload == 1):
+            self.reload = 0
+            shoot_msg.data = self.store_speed
+            self.shooter_speed_pub.publish(shoot_msg)
+            
 
         if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
             self.control_type = True

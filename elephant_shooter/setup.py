@@ -1,11 +1,12 @@
 from setuptools import setup
 
-package_name = 'elephant_odom'
+package_name = 'elephant_shooter'
+shooter_name = 'shooter'
 
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=[package_name, shooter_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -13,15 +14,16 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='zero',
-    maintainer_email='zeroeverything001@gmail.com',
+    maintainer='robotic',
+    maintainer_email='chetsokhpanha@gmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'wheel_odometry=elephant_odom.odom:main',
-            'internal_wheel_odometry=elephant_odom.internal_odom:main',
+            'client = elephant_shooter.client:main',
+            'service = elephant_shooter.service:main',
+            'can = elephant_shooter.shooter_can:main',
         ],
     },
 )

@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'elephant_odom'
+package_name = 'elephant_ps3_controller'
 
 setup(
     name=package_name,
@@ -20,8 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'wheel_odometry=elephant_odom.odom:main',
-            'internal_wheel_odometry=elephant_odom.internal_odom:main',
+            'ps3_controller=elephant_ps3_controller.ps3_serial:main',
         ],
     },
 )
