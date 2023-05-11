@@ -36,23 +36,24 @@ class ShooterService(Node):
         response.success= False
         response.message = "False"
         while(self.commant == True):
-            
             response.success = True
             response.message = "Success"
             print(self.data)
             self.distance = 0.001557156*(self.data) + 0.1372142
-            print(self.distance)
-            self.rps = int(shooter(self.distance).shooter())
+            rps = int(shooter(self.distance).shooter())
+            if(self.distance <= 0.1372142):
+                rps =0
+            
+            print(rps)
             shooter_msg = Int32()
-            shooter_msg.data = -self.rps
+            shooter_msg.data = -rps
             self.shooter_pub.publish(shooter_msg)
             time.sleep(2)
-            shooter_msg.data = self.rps
+            shooter_msg.data = rps
             self.shooter_pub.publish(shooter_msg)
             time.sleep(1)
             shooter_msg.data = 0
             self.shooter_pub.publish(shooter_msg)
-
             break
         return response
 

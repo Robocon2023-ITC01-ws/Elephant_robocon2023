@@ -13,7 +13,7 @@ class shooter():
     def velocity_to_can(self, velocity):
         rps2 = velocity*2/(self.d_roller)
         rps1 = rps2*(self.d_pulley_2/self.d_pulley_1)
-        v_to_roller = int(rps1)
+        v_to_roller = rps1
         if (v_to_roller > 1500):
             v_in = 1500
         v_o = (int)(self.map(v_to_roller, 0, 1500, 0, 65535))
