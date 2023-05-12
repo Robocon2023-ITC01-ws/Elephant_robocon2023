@@ -17,7 +17,7 @@ class ShooterNode(Node):
         self.button_sub = self.create_subscription(Int8, "shooter_command", self.button_callback, 10)
         self.shooter_pub = self.create_publisher(Int32, 'shooter', 10)
 
-        self.button_command = False
+        self.button_command = 0
         self.laser_data = 0
         self.shooter_data = 0
         self.distance = 0.0
@@ -28,18 +28,23 @@ class ShooterNode(Node):
             self.laser_sub = self.create_subscription(Int16, 'laser', self.laser_callback, 10)
             distance = 0.001557156*(self.laser_data) + 0.1372142
             self.rps = int(shooter(distance).shooter())
+            if(self.rps == 7433):
+                self.rps = 0 
             shooter_msg = Int32()
             shooter_msg.data = -self.rps
             self.shooter_pub.publish(shooter_msg)
-            sleep(1)
+            print(self.rps)
+            sleep(2)
             shooter_msg.data = self.rps
             self.shooter_pub.publish(shooter_msg)
+            
             sleep(1)
             shooter_msg.data = 0
             self.shooter_pub.publish(shooter_msg)
+            
             self.rps = 0
             break
-        print(self.rps)
+
         
 
     def laser_callback(self, laser_msg):

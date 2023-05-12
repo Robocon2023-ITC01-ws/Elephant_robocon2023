@@ -25,6 +25,7 @@ setup(
             'service = elephant_shooter.service:main',
             'can = elephant_shooter.shooter_can:main',
             'shooter = elephant_shooter.shooter:main',
+            'command = elephant_shooter.shoot_command:main',
         ],
     },
 )
