@@ -15,8 +15,8 @@ def map(Input, Min_Input, Max_Input, Min_Output, Max_Output):
 class ShooterService(Node):
     def __init__(self):
         super().__init__('shooter_service')
-        self.laser_sub = self.create_subscription(Int16, 'laser', self.laser_callback, 10)
         self.shooter_pub = self.create_publisher(Int32, 'shooter', 10)
+        self.laser_sub = self.create_subscription(Int16, 'laser', self.laser_callback, 10)
         self.shooter_srv = self.create_service(SetBool, 'shooter_srv', self.shooter_srv_callback)
 
         # Timer
@@ -35,40 +35,32 @@ class ShooterService(Node):
         self.commant = bool(request.data)
         response.success= False
         response.message = "False"
-        print(self.commant)
-        if(self.commant == True):
+        while(self.commant == True):
             response.success = True
-            self.flag = response.success
             response.message = "Success"
-        else:
-            self.flag = False
-            print("Error")
+            print(self.data)
+            self.distance = 0.001557156*(self.data) + 0.1372142
+            rps = int(shooter(self.distance).shooter())
+            if(self.distance <= 0.1372142):
+                rps =0
+            
+            print(rps)
+            shooter_msg = Int32()
+            shooter_msg.data = -rps
+            self.shooter_pub.publish(shooter_msg)
+            time.sleep(2)
+            shooter_msg.data = rps
+            self.shooter_pub.publish(shooter_msg)
+            time.sleep(1)
+            shooter_msg.data = 0
+            self.shooter_pub.publish(shooter_msg)
+            break
         return response
 
     def laser_callback(self, laser_msg):
-        shooter_msg = Int32()
-        i = 0
-        if(self.flag == True):
-            self.data = laser_msg.data
-            while(i <=6):
-                self.stored = self.data
-                i = i + 1
-                break
-            self.distance = 0.001557156*(self.stored) + 0.1372142 
-            #self.distance = map(self.data,0,4096,0.5,10.0) 
-            print(self.distance)
-            self.rps = shooter(self.distance).shooter()
-            shooter_msg.data = int(self.rps)
-            self.shooter_pub.publish(shooter_msg)
-
-        else:
-            self.distance = 0.0
-            self.rps = 0
-            shooter_msg.data = 0
-            self.shooter_pub.publish(shooter_msg)
-
-
-
+        self.data = laser_msg.data
+           
+            
 def main(args=None):
     rclpy.init(args=args)
     shooter_service = ShooterService()
@@ -78,4 +70,3 @@ def main(args=None):
 
 if __name__=='__main__':
     main()
-

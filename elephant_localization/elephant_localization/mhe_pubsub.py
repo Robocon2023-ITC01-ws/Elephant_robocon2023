@@ -14,7 +14,7 @@ class ros_node(Node):
     def __init__(self):
         super(ros_node, self).__init__('mhe_node')
         self.elephant = ElephantModel()
-        self.timer = 0.01
+        self.timer = 1/30
         self.roll = 0.0
         self.pitch = 0.0
         self.yaw = 0.0

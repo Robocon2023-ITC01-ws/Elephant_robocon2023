@@ -71,6 +71,7 @@ class odom_wheel(Node):
         quatOdom.pose.pose.position.y = (float)(self.new_state[1])
 
         yaw = arctan2(sin(self.new_state[2]), cos(self.new_state[2]))
+        
         q = quaternion_from_euler(0.0,0.0,yaw)
         ## 
         quatOdom.pose.pose.orientation.x = q[0]
@@ -88,7 +89,7 @@ class odom_wheel(Node):
                 else :
                     quatOdom.pose.covariance[i] = 0
         ##
-        print(self.new_state)
+        print(self.new_state, yaw)
 
         self.publish_wheel_odom.publish(quatOdom)
 
@@ -122,9 +123,9 @@ class odom_wheel(Node):
         )
 
         J = (wheel_radius) * ca.DM([          ## inverse kinematic
-            [0.5,-0.5,0],
-            [33/119 , 33/119, 1],
-            [200/119, 200/119, 0]
+            [1.84375, -1.84375, 1],
+            [1.325, -0.325, 0],
+            [-6.25, 6.25, 0]
         ])
 
         self.new_state = ca.DM([x_init, y_init, theta_init])        # initial state

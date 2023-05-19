@@ -1,0 +1,4 @@
+bool shoot
+---
+int32 shooter
+bool success
