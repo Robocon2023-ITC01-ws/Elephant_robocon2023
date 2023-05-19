@@ -17,12 +17,21 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(package='elephant_can',executable='can'),
+<<<<<<< HEAD
         Node(package='elephant_localization', executable='localization'),
         Node(package='elephant_can',executable='teleop'),
         #Node(package='elephant_control',executable='test_controller'),
         Node(package='elephant_shooter',executable='shooter'),
         Node(package='joy', executable='joy_node'),
         #Node(package='elephant_odom',executable='wheel_odometry'),
+=======
+        Node(package='elephant_odom',executable='wheel_odometry'),
+        # Node(package='elephant_localization', executable='localization'),
+        # Node(package='elephant_can',executable='teleop'),
+        #Node(package='elephant_control',executable='test_controller'),
+        # Node(package='elephant_shooter',executable='service'),
+        # Node(package='joy', executable='joy_node'),
+>>>>>>> 226e31007a15070570daef7b200f9ff36209b404
         #Node(package='elephant_publish_pos', executable='test_pos_pub'),
     ])
 
