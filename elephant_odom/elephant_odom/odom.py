@@ -123,15 +123,9 @@ class odom_wheel(Node):
         )
 
         J = (wheel_radius) * ca.DM([          ## inverse kinematic
-<<<<<<< HEAD
             [1.84375, -1.84375, 1],
             [1.325, -0.325, 0],
             [-6.25, 6.25, 0]
-=======
-            [59/32, -59/32, 1],
-            [53/40, -13/40, 0],
-            [-1/16, 1/16, 0]
->>>>>>> 226e31007a15070570daef7b200f9ff36209b404
         ])
 
         self.new_state = ca.DM([x_init, y_init, theta_init])        # initial state
