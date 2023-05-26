@@ -9,7 +9,7 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Vector3
 from std_msgs.msg import Float32
-from std_msgs.msg import Int32
+from std_msgs.msg import Float32
 from std_msgs.msg import Int8
 
 gain = 2
@@ -30,7 +30,8 @@ class ros_node(Node):
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
 
-        self.shooter_speed_pub = self.create_publisher(Int32, 'shooter', 10)
+        self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
+        self.adjust_pub = self.create_publisher(Float32, 'adjust', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
@@ -43,22 +44,28 @@ class ros_node(Node):
         self.vy = joy_msg.axes[0]
         self.omega = -1 * joy_msg.axes[3]
 
-        shoot_msg = Int32()
+        shoot_msg = Int8()
+        shoot_msg.data = joy_msg.buttons[2]
+        self.shooter_speed_pub.publish(shoot_msg)
 
-        if (joy_msg.buttons[2] == 1):
-            self.store_speed = (float)(self.kinematic.map((float)(joy_msg.axes[2]),1.0,-1.0,0.0,-1000.0))
-            shoot_msg.data = self.store_speed
-            self.shooter_speed_pub.publish(shoot_msg)
-        if (joy_msg.buttons[1] == 1):
-            shoot_msg.data = self.store_speed * -1.0
-            self.reload = 1
-            self.shooter_speed_pub.publish(shoot_msg)
+        adjust_msg = Float32()
+        adjust_msg.data = float(joy_msg.axes[5])
+        self.adjust_pub.publish(adjust_msg)
+
+        # if (joy_msg.buttons[2] == 1):
+        #     self.store_speed = (float)(self.kinematic.map((float)(joy_msg.axes[2]),1.0,-1.0,0.0,-1000.0))
+        #     shoot_msg.data = self.store_speed
+        #     self.shooter_speed_pub.publish(shoot_msg)
+        # if (joy_msg.buttons[1] == 1):
+        #     shoot_msg.data = self.store_speed * -1.0
+        #     self.reload = 1
+        #     self.shooter_speed_pub.publish(shoot_msg)
 
 
-        elif (joy_msg.buttons[1] == 0 and self.reload == 1):
-            self.reload = 0
-            shoot_msg.data = self.store_speed
-            self.shooter_speed_pub.publish(shoot_msg)
+        # elif (joy_msg.buttons[1] == 0 and self.reload == 1):
+        #     self.reload = 0
+        #     shoot_msg.data = self.store_speed
+        #     self.shooter_speed_pub.publish(shoot_msg)
             
 
         if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
