@@ -21,7 +21,6 @@ setup(
     entry_points={
         'console_scripts': [
             'ps3_controller=elephant_ps3_controller.ps3_serial:main',
-            'tcp_controller=elephant_ps3_controller.tcp_serial:main',
         ],
     },
 )

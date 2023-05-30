@@ -19,6 +19,8 @@ def map(Input, Min_Input, Max_Input, Min_Output, Max_Output):
     value =  ((Input - Min_Input) * (Max_Output - Min_Output) / (Max_Input - Min_Input) + Min_Output)
     return value
 
+
+
 class serial_read(Node):
     def __init__(self):
         super().__init__('serial_read')

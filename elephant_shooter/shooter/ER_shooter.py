@@ -56,7 +56,7 @@ class shooter():
             X_in = X_in*a
             #X_in = X_in*2
         elif(X_in>1.2 and X_in<=1.3):
-            a = self.map(self.adjust, -1, 1, 1.8,1.94)
+            a = self.map(self.adjust, -1, 1, 1.95,2.1)
             X_in = X_in*a
             #X_in = X_in*1.9
         elif(X_in>1.3 and X_in<=1.4):

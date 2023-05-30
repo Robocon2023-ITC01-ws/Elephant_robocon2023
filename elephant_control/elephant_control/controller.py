@@ -9,9 +9,9 @@ import math
 from casadi import sin, cos, pi
 
 # setting matrix_weights' variables
-Q_x = 800
-Q_y = 800
-Q_theta = 450
+Q_x = 600
+Q_y = 600
+Q_theta = 2000
 ############
 V_limit = 40.0  # rad/s
 accel = 8.0 # rad/s^2
@@ -21,7 +21,7 @@ R2 = 1
 R3 = 1
 R4 = 1
 
-step_horizon = 0.1  # time between steps in seconds
+step_horizon = 0.05  # time between steps in seconds
 N = 10              # number of look ahead steps
 wheel_radius = 0.06    # wheel radius
 L = 0.285           # L in J Matrix (half robot x-axis length)
@@ -71,8 +71,7 @@ def DM2Arr(dm):
 class mpc_class(Node):
     def __init__(self):
         super().__init__('mpc_node_test')
-        timer_period = 0.1  # seconds
-        self.mpc_timer = self.create_timer(timer_period, self.mpc_callback)
+        self.mpc_timer = self.create_timer(step_horizon, self.mpc_callback)
         self.publisher_ = self.create_publisher(Float32MultiArray, 'pub_speed', 100)
         self.subscription1 = self.create_subscription(
             Float32MultiArray,
@@ -310,7 +309,7 @@ class mpc_class(Node):
                 )
                 ###############
                 if self.slow_speed <= 0.5 or self.slow_speed >= 1.5:
-                    self.v_max = self.v_max + accel * 0.1
+                    self.v_max = self.v_max + accel * step_horizon
                 if self.v_max >= V_limit : self.v_max = V_limit
             else :
                 self.V_pub = [0,0,0,0]
