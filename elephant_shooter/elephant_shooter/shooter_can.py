@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import UInt16, Int16
+from std_msgs.msg import UInt16
 
 import can
 import numpy as np
@@ -16,7 +16,7 @@ class can_node(Node):
         self.bus = can.interface.Bus(channel='can0', interface='socketcan',bitrate=1000000)
 
         # Publish subscriber
-        self.laser_pub = self.create_publisher(Int16, 'laser', 10)
+        self.laser_pub = self.create_publisher(UInt16, 'laser', 10)
         self.shooter_sub = self.create_subscription(UInt16, 'shooter', self.shooter_callback, 10)
         self.laser_timer = self.create_timer(0.01, self.laser_callback)
 
