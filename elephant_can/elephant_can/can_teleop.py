@@ -80,10 +80,10 @@ class ros_node(Node):
         #     self.shooter_speed_pub.publish(shoot_msg)
             
 
-        # if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
-        #     self.control_type = True
-        # elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
-        #     self.control_type = False
+        if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
+            self.control_type = True
+        elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
+            self.control_type = False
         # if self.control_type == True : 
         #     if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
         #         msg = Vector3()
