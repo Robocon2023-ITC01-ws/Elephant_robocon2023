@@ -33,7 +33,7 @@ class ShooterNode(Node):
         button_command = int(button_msg.data)
         while(button_command == 1):
             self.laser_sub = self.create_subscription(UInt16, 'laser', self.laser_callback, 10)
-            distance = (4.122 - 0.354)/(2546 - 5)*(self.laser_data - 5) + 0.354
+            distance = (4.439 - 0.765)/(3495 - 6)*(self.laser_data - 6) + 0.765
             print(distance)
             self.rps = int(shooter(distance, self.adjust).shooter())
             if(self.rps == 7433):

@@ -84,19 +84,19 @@ class ros_node(Node):
             self.control_type = True
         elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
             self.control_type = False
-        # if self.control_type == True : 
-        #     if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
-        #         msg = Vector3()
-        #         msg.x = 4.2        ##  
-        #         msg.y = -1.76
-        #         msg.z = 0.0
-        #         self.joy_pos_pub.publish(msg)
-        #     elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
-        #         msg = Vector3()
-        #         msg.x = 4.76
-        #         msg.y = 1.65
-        #         msg.z = 0.0
-        #         self.joy_pos_pub.publish(msg)
+        if self.control_type == True : 
+            if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
+                msg = Vector3()
+                msg.x = 4.2        ##  
+                msg.y = -1.76
+                msg.z = 0.0
+                self.joy_pos_pub.publish(msg)
+            elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
+                msg = Vector3()
+                msg.x = 4.76
+                msg.y = 1.65
+                msg.z = 0.0
+                self.joy_pos_pub.publish(msg)
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :

@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import UInt16MultiArray
 from nav_msgs.msg import Odometry
-
+from sensor_msgs.msg import Imu
 
 import casadi as ca
 import math
@@ -15,6 +15,25 @@ L = 0.37                    # L in J Matrix (half robot x-axis length)
 x_init = 0.0
 y_init = 0.0
 theta_init = 0.0
+
+def euler_from_quaternion(x, y, z, w):
+    t0 = 2.0 * (w * x + y * z)
+    t1 = 1.0 - 2.0 * (x * x + y * y)
+    roll = math.atan2(t0, t1)
+    
+    t2 = 2.0 * (w * y - z * x)
+    t2 = 1.0 if t2 > 1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch = math.asin(t2)
+    
+    t3 = 2.0 * (w * z +x * y)
+    t4 = 1.0 - 2.0*(y * y + z * z)
+    yaw = math.atan2(t3, t4)
+    
+    #if yaw < 0:
+    #	yaw = self.map(yaw, -3.1399, -0.001, 3.1399, 6.2799)
+    
+    return yaw
 
 def map(Input, min_input, max_input, min_output, max_output):
     value = ((Input - min_input)*(max_output-min_output)/(max_input - min_input) + min_output)
@@ -49,10 +68,11 @@ class odom_wheel(Node):
             'tick_feedback',
             self.listener_callback,
             20)
+        self.imu_subscriber = self.create_subscription(Imu, "/imu/data2", self.imu_callback, 20)
         self.publish_wheel_odom = self.create_publisher(Odometry, 'wheel_odom', 10)
         self.pub_timer = self.create_timer(0.02, self.pub_timer_cb)
 
-        self.ppr = 8200      # tick per revelution
+        self.ppr = 8200/8      # tick per revelution
         
 
         self.old_tick = ca.DM([0, 0, 0, 0])
@@ -63,6 +83,10 @@ class odom_wheel(Node):
         self.covariance_init = True
         self.init_param()
 
+        self.yaw = 0.0
+
+    def imu_callback(self,imu_msg):
+        self.yaw = euler_from_quaternion(imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z, imu_msg.orientation.w)
     def pub_timer_cb(self):
         quatOdom = Odometry()
         quatOdom.header.stamp = self.get_clock().now().to_msg()
@@ -125,7 +149,7 @@ class odom_wheel(Node):
         J = (wheel_radius) * ca.DM([          ## inverse kinematic
             [-295/312, -295/312, 1],
             [-53/78, 25/78, 0],
-            [5/156, 5/156, 0]
+            [125/39, 125/39, 0]
         ])
 
         self.new_state = ca.DM([x_init, y_init, theta_init])        # initial state
@@ -156,6 +180,7 @@ class odom_wheel(Node):
                 elif (self.diff[i] < -32768):
                     self.diff[i] = self.diff[i] + 65535
             #################
+            self.old_state[2] = self.yaw
             self.new_state = self.shift_timestep(self.old_state,self.diff,self.f)
             self.old_state = self.new_state
             #################
