@@ -41,6 +41,10 @@ class ros_node(Node):
         self.store_speed = 0.0
         self.reload = 0
 
+        ## data of joy stick
+        self.recived = 0
+        self.moving_process = 0
+
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]
         self.vy = joy_msg.axes[0]
@@ -63,40 +67,50 @@ class ros_node(Node):
             state = UInt8()
             state.data = 0
             self.state_pub.publish(state)
-
-        # if (joy_msg.buttons[2] == 1):
-        #     self.store_speed = (float)(self.kinematic.map((float)(joy_msg.axes[2]),1.0,-1.0,0.0,-1000.0))
-        #     shoot_msg.data = self.store_speed
-        #     self.shooter_speed_pub.publish(shoot_msg)
-        # if (joy_msg.buttons[1] == 1):
-        #     shoot_msg.data = self.store_speed * -1.0
-        #     self.reload = 1
-        #     self.shooter_speed_pub.publish(shoot_msg)
-
-
-        # elif (joy_msg.buttons[1] == 0 and self.reload == 1):
-        #     self.reload = 0
-        #     shoot_msg.data = self.store_speed
-        #     self.shooter_speed_pub.publish(shoot_msg)
             
 
         if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
             self.control_type = True
         elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
             self.control_type = False
+
+
         if self.control_type == True : 
             if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
                 msg = Vector3()
                 msg.x = 4.2        ##  
-                msg.y = -1.76
+                msg.y = -5.6
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
             elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
                 msg = Vector3()
-                msg.x = 4.76
-                msg.y = 1.65
+                msg.x = 3.6
+                msg.y = 4.9
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
+            
+            
+            # if joy_msg.buttons[11] == 1 and self.recived == 0:   ## left ring
+            #     self.recived = 1
+            
+            # if joy_msg.buttons[12] == 1 and self.recived == 0 : ## right ring
+            #     self.recived = 1
+            
+            # if joy_msg.axes[7] > 0.0 and self.recived == 0:
+            #     self.recived = 1
+            #     self.moving_process = self.moving_process + 1
+
+            # elif joy_msg.axes[7] < 0.0 and self.recived == 0:
+            #     self.recived = 1
+            #     self.moving_process = self.moving_process - 1
+
+            # elif joy_msg.axes[7] == 0.0 and self.recived == 1:
+            #     self.recived = 0
+
+            self.get_logger().info("%d" % self.moving_process)
+            
+
+
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :

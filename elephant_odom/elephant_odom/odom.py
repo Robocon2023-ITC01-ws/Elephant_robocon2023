@@ -3,7 +3,7 @@ from rclpy.node import Node
 from std_msgs.msg import UInt16MultiArray
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
-
+from geometry_msgs.msg import Vector3
 import casadi as ca
 import math
 from casadi import sin, cos, pi, arctan2
@@ -70,11 +70,11 @@ class odom_wheel(Node):
             20)
         self.imu_subscriber = self.create_subscription(Imu, "/imu/data2", self.imu_callback, 20)
         self.publish_wheel_odom = self.create_publisher(Odometry, 'wheel_odom', 10)
+        self.odom_publisher = self.create_publisher(Vector3, "/odom/data",10)
         self.pub_timer = self.create_timer(0.02, self.pub_timer_cb)
 
         self.ppr = 8200/8      # tick per revelution
         
-
         self.old_tick = ca.DM([0, 0, 0, 0])
         self.new_tick = ca.DM([0, 0, 0, 0])
         self.diff = ca.DM([0, 0, 0, 0])
@@ -88,34 +88,39 @@ class odom_wheel(Node):
     def imu_callback(self,imu_msg):
         self.yaw = euler_from_quaternion(imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z, imu_msg.orientation.w)
     def pub_timer_cb(self):
-        quatOdom = Odometry()
-        quatOdom.header.stamp = self.get_clock().now().to_msg()
-        quatOdom.header.frame_id = 'wheel_odom'
-        quatOdom.pose.pose.position.x = (float)(self.new_state[0])
-        quatOdom.pose.pose.position.y = (float)(self.new_state[1])
+        odom_msg = Vector3()
+        odom_msg.x = (float)(self.new_state[0])
+        odom_msg.y = (float)(self.new_state[1])
+        odom_msg.z = (float)(self.yaw)
+        self.odom_publisher.publish(odom_msg)
 
-        yaw = arctan2(sin(self.new_state[2]), cos(self.new_state[2]))
+        # quatOdom = Odometry()
+        # quatOdom.header.stamp = self.get_clock().now().to_msg()
+        # quatOdom.header.frame_id = 'wheel_odom'
+        # quatOdom.pose.pose.position.x = (float)(self.new_state[0])
+        # quatOdom.pose.pose.position.y = (float)(self.new_state[1])
+
+        # yaw = arctan2(sin(self.new_state[2]), cos(self.new_state[2]))
         
-        q = quaternion_from_euler(0.0,0.0,yaw)
-        ## 
-        quatOdom.pose.pose.orientation.x = q[0]
-        quatOdom.pose.pose.orientation.y = q[1]
-        quatOdom.pose.pose.orientation.z = q[2]
-        quatOdom.pose.pose.orientation.w = q[3]
+        # q = quaternion_from_euler(0.0,0.0,yaw)
+        # ## 
+        # quatOdom.pose.pose.orientation.x = q[0]
+        # quatOdom.pose.pose.orientation.y = q[1]
+        # quatOdom.pose.pose.orientation.z = q[2]
+        # quatOdom.pose.pose.orientation.w = q[3]
 
-        if (self.covariance_init):
-            self.covariance_init = False
-            for i in range (36):
-                if(i == 0 or i == 7 or i == 14):
-                    quatOdom.pose.covariance[i] = 0.01
-                elif (i == 21 or i == 28 or i== 35):
-                    quatOdom.pose.covariance[i] += 0.1
-                else :
-                    quatOdom.pose.covariance[i] = 0
-        ##
-        print(self.new_state, yaw)
-
-        self.publish_wheel_odom.publish(quatOdom)
+        # if (self.covariance_init):
+        #     self.covariance_init = False
+        #     for i in range (36):
+        #         if(i == 0 or i == 7 or i == 14):
+        #             quatOdom.pose.covariance[i] = 0.01
+        #         elif (i == 21 or i == 28 or i== 35):
+        #             quatOdom.pose.covariance[i] += 0.1
+        #         else :
+        #             quatOdom.pose.covariance[i] = 0
+        # ##
+        # print(self.new_state, yaw)
+        # self.publish_wheel_odom.publish(quatOdom)
 
     def init_param(self):
         ## state symbolic variables

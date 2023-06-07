@@ -15,10 +15,10 @@ except :
 import casadi as ca
 
 ##########################
-x_left = -1.45		
-y_left = 1.53		
-x_right = 0.74
-y_right = 1.53
+x_left = -4.2		
+y_left = 0.8		
+x_right = 4.9
+y_right = 1.15
 distant = 0.8
 
 # trajactory
