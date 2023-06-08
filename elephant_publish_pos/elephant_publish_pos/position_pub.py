@@ -15,10 +15,25 @@ except :
 import casadi as ca
 
 ##########################
-x_left = -4.2		
-y_left = 0.8		
-x_right = 4.9
-y_right = 1.15
+import yaml
+
+import getpass
+username = getpass.getuser()
+
+def read_one_block_of_yaml_data(filename, key):
+    with open(f'{filename}','r') as f:
+        output = yaml.safe_load(f)
+    return output[f'{key}'] 
+
+file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
+Left = read_one_block_of_yaml_data(file , key = 'limit_L')
+Right = read_one_block_of_yaml_data(file , key = 'limit_R')
+
+x_left = Left[0]	
+y_left = Left[1]		
+x_right = Right[0]
+y_right = Right[1]
+
 distant = 0.8
 
 # trajactory
@@ -116,8 +131,8 @@ class position_class(Node):
     def joy_position_cb(self, joy_msg):
         print("recieve")
         if (joy_msg.x != self.pos_x or joy_msg.y != self.pos_y or joy_msg.z != self.pos_yaw):
-            self.pos_y = joy_msg.x      ## i decide to use normal plane here for easy to analyse position and conditional
-            self.pos_x = -1 * joy_msg.y
+            self.pos_y = joy_msg.y      ## i decide to use normal plane here for easy to analyse position and conditional
+            self.pos_x = joy_msg.x
             self.pos_yaw = joy_msg.z
             ## cubic cubic_spline_planner ## here
             if (self.current_x < x_left and self.current_y > y_left):   ## surface 1
@@ -181,8 +196,8 @@ class position_class(Node):
             self.slow_speed = 1.0
             self.run = True     ## state for publish mpc_position
     def feedback_callback(self, msg):
-        self.current_x = -msg.y     ## different plane
-        self.current_y = msg.x
+        self.current_x = msg.x     ## different plane
+        self.current_y = msg.y
         self.current_yaw = msg.z
     def pub_timer_callback(self):
         if (self.run == True):
@@ -190,10 +205,10 @@ class position_class(Node):
             if self.tick <= len(self.cx) - 1 : 
                 # self.pub_x = self.cx[self.tick]     ## different plan
                 # self.pub_y = self.cy[self.tick]
-                self.pub_x = self.cy[self.tick]     ## different plan
-                self.pub_y = -1 * self.cx[self.tick]
+                self.pub_x = self.cx[self.tick]     ## different plan
+                self.pub_y = self.cy[self.tick]
                 self.pub_yaw = self.cyaw[self.tick]
-                self.pub_yaw = 0.0
+                self.pub_yaw = 0.0      ## here what i need to think
                 if self.tick <= len(self.cx) - 5 :
                     self.ck_test = self.ck[self.tick + 4]
             else :

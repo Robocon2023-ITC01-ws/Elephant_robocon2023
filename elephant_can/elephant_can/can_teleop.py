@@ -14,6 +14,15 @@ from std_msgs.msg import Int8
 from std_msgs.msg import UInt8
 
 gain = 2
+import yaml
+
+import getpass
+username = getpass.getuser()
+
+def read_one_block_of_yaml_data(filename, key):
+    with open(f'{filename}','r') as f:
+        output = yaml.safe_load(f)
+    return output[f'{key}'] 
 
 class ros_node(Node):
     def __init__(self):
@@ -44,6 +53,18 @@ class ros_node(Node):
         ## data of joy stick
         self.recived = 0
         self.moving_process = 0
+        ## point read from yaml file
+        self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
+        self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
+        self.point_2 = read_one_block_of_yaml_data(self.file, key='point_2')
+        self.point_3 = read_one_block_of_yaml_data(self.file, key='point_3')
+        self.point_4 = read_one_block_of_yaml_data(self.file, key='point_4')
+        self.point_5 = read_one_block_of_yaml_data(self.file, key='point_5')
+        self.point_6 = read_one_block_of_yaml_data(self.file, key='point_6')
+        self.point_7 = read_one_block_of_yaml_data(self.file, key='point_7')
+        self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
+        self.ring_R = read_one_block_of_yaml_data(self.file, key='ring_R')
+        self.ring_L = read_one_block_of_yaml_data(self.file, key='ring_L')
 
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]

@@ -12,12 +12,18 @@ from std_msgs.msg import Float32
 from std_msgs.msg import Int8
 from std_msgs.msg import UInt8
 
+import getpass
+username = getpass.getuser()
+
 import yaml
 def read_and_modify_one_block_of_yaml_data(filename, key, value):
     with open(f'{filename}', 'r') as f:
         data = yaml.safe_load(f)
         data[f'{key}'] = value 
         print(data) 
+    with open(f'{filename}', 'w') as file:
+        yaml.dump(data,file,sort_keys=False)
+    print('done!')
     print('done!')
 
 gain = 2
@@ -57,7 +63,7 @@ class ros_node(Node):
         self.press_button = 0
         self.count = 0
 
-        self.file = '/home/zero/ros2_testing_ws/src/elephant_can/elephant_can/param/moving_pos.yaml'
+        self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
 
     def save_pos_cb(self, pos_msg):
         self.pos_x = pos_msg.x
@@ -94,63 +100,90 @@ class ros_node(Node):
             self.control_type = False
         if self.control_type == False : 
             
-            if(joy_msg.axes[6] > 0.0 and self.press_button == 0):
+            if(joy_msg.axes[7] > 0.0 and self.press_button == 0):
                 self.press_button = 1
                 self.count = self.count + 1
-            elif ( joy_msg.axes[6] < 0.0 and self.press_button == 0):
+                if(self.count > 6) : self.count = 6
+            elif ( joy_msg.axes[7] < 0.0 and self.press_button == 0):
                 self.press_button = 1
                 self.count = self.count - 1
-            elif (joy_msg.axes[6] == 0 and self.press_button == 1):
+                if(self.count < 0) : self.count = 0
+            elif (joy_msg.axes[7] == 0.0 and self.press_button == 1):
                 self.press_button = 0
 
-            if(self.count == 0):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_1', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_1')
-                else :
-                    self.get_logger.info('point 1')
+            if(joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 0 and joy_msg.axes[6] == 0.0):
+                if(self.count == 0):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_1', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_1')
+                    else :
+                        self.get_logger().info('point 1')
 
-            elif(self.count == 1):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_2', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_2')
-                else :
-                    self.get_logger.info('point 2')
+                elif(self.count == 1):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_2', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_2')
+                    else :
+                        self.get_logger().info('point 2')
 
-            elif(self.count == 2):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_3', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_3')
-                else :
-                    self.get_logger.info('point 3')
-        
-            elif(self.count == 3):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_4', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_4')
-                else :
-                    self.get_logger.info('point 4')
+                elif(self.count == 2):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_3', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_3')
+                    else :
+                        self.get_logger().info('point 3')
+            
+                elif(self.count == 3):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_4', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_4')
+                    else :
+                        self.get_logger().info('point 4')
 
-            elif(self.count == 4):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_5', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_5')
-                else :
-                    self.get_logger.info('point 5')
+                elif(self.count == 4):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_5', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_5')
+                    else :
+                        self.get_logger().info('point 5')
 
-            elif(self.count == 5):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_6', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_6')
-                else :
-                    self.get_logger.info('point 6')
+                elif(self.count == 5):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_6', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_6')
+                    else :
+                        self.get_logger().info('point 6')
 
-            elif(self.count == 7):
-                if (joy_msg.buttons[0] == 1):
-                    read_and_modify_one_block_of_yaml_data(self.file, key='point_6', value = [self.pos_x, self.pos_y, self.pos_yaw])
-                    self.get_logger.info('saved !! to point_6')
+                elif(self.count == 6):
+                    if (joy_msg.buttons[0] == 1):
+                        read_and_modify_one_block_of_yaml_data(self.file, key='point_7', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                        self.get_logger().info('saved !! to point_7')
+                    else :
+                        self.get_logger().info('point 7')
+            elif (joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0):
+                if(joy_msg.buttons[0] == 1):
+                    read_and_modify_one_block_of_yaml_data(self.file, key='ring_L', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                    self.get_logger().info('save!!! Left ring zone !!!!')
                 else :
-                    self.get_logger.info('point 7')
+                    self.get_logger().info('Left ring zone')
+            elif (joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1):
+                if(joy_msg.buttons[0] == 1):
+                    read_and_modify_one_block_of_yaml_data(self.file, key='ring_R', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                    self.get_logger().info('save!!! Right ring zone !!!!')
+                else :
+                    self.get_logger().info('Right ring zone')
+            elif (joy_msg.axes[6] > 0.0):
+                if(joy_msg.buttons[0] == 1):
+                    read_and_modify_one_block_of_yaml_data(self.file, key='limit_L', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                    self.get_logger().info('save!!! left limit point !!!!')
+                else :
+                    self.get_logger().info('Left limit point')
+            elif (joy_msg.axes[6] < 0.0):
+                if(joy_msg.buttons[0] == 1):
+                    read_and_modify_one_block_of_yaml_data(self.file, key='limit_R', value = [self.pos_x, self.pos_y, self.pos_yaw])
+                    self.get_logger().info('save!!! Right limit point !!!!')
+                else :
+                    self.get_logger().info('Right limit point')
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :
@@ -167,7 +200,6 @@ class ros_node(Node):
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])
-            print(Vx)
             self.velocity_pub.publish(pub_msg)
 
         pub_type_msg = Bool()

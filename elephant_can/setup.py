@@ -20,8 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-    'can=elephant_can.can_node:main',
-    'teleop=elephant_can.can_teleop:main',
+            'can=elephant_can.can_node:main',
+            'teleop=elephant_can.can_teleop:main',
+            'save_teleop=elephant_can.position_saver:main',
         ],
     },
 )
