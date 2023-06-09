@@ -53,6 +53,8 @@ class ros_node(Node):
         ## data of joy stick
         self.recived = 0
         self.moving_process = 0
+        self.press_button = 0
+        self.count = 0
         ## point read from yaml file
         self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
         self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
@@ -62,7 +64,7 @@ class ros_node(Node):
         self.point_5 = read_one_block_of_yaml_data(self.file, key='point_5')
         self.point_6 = read_one_block_of_yaml_data(self.file, key='point_6')
         self.point_7 = read_one_block_of_yaml_data(self.file, key='point_7')
-        self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
+
         self.ring_R = read_one_block_of_yaml_data(self.file, key='ring_R')
         self.ring_L = read_one_block_of_yaml_data(self.file, key='ring_L')
 
@@ -97,41 +99,124 @@ class ros_node(Node):
 
 
         if self.control_type == True : 
-            if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
-                msg = Vector3()
-                msg.x = 4.2        ##  
-                msg.y = -5.6
-                msg.z = 0.0
-                self.joy_pos_pub.publish(msg)
-            elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
-                msg = Vector3()
-                msg.x = 3.6
-                msg.y = 4.9
-                msg.z = 0.0
-                self.joy_pos_pub.publish(msg)
-            
-            
-            # if joy_msg.buttons[11] == 1 and self.recived == 0:   ## left ring
-            #     self.recived = 1
-            
-            # if joy_msg.buttons[12] == 1 and self.recived == 0 : ## right ring
-            #     self.recived = 1
-            
-            # if joy_msg.axes[7] > 0.0 and self.recived == 0:
-            #     self.recived = 1
-            #     self.moving_process = self.moving_process + 1
+            joy_pub_msg = Vector3()
 
-            # elif joy_msg.axes[7] < 0.0 and self.recived == 0:
-            #     self.recived = 1
-            #     self.moving_process = self.moving_process - 1
+            if (joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 0):
+                if(joy_msg.axes[7] > 0.0 and self.press_button == 0):
+                    self.press_button = 1
+                    self.count = self.count + 1
+                    if(self.count > 6) : self.count = 6
+                elif ( joy_msg.axes[7] < 0.0 and self.press_button == 0):
+                    self.press_button = 1
+                    self.count = self.count - 1
+                    if(self.count < 0) : self.count = 0
+                elif (joy_msg.axes[7] == 0.0 and self.press_button == 1):
+                    self.press_button = 0
 
-            # elif joy_msg.axes[7] == 0.0 and self.recived == 1:
-            #     self.recived = 0
+                ## process pub position
+                if(self.count == 0):
+                    if (joy_msg.buttons[0] == 0):
+                        self.get_logger().info('position to go :: point_1')
+                    else :
+                        joy_pub_msg.x = self.point_1[0]
+                        joy_pub_msg.y = self.point_1[1]
+                        joy_pub_msg.z = self.point_1[2]
 
-            self.get_logger().info("%d" % self.moving_process)
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+
+                elif(self.count == 1):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_2')
+                    else :
+                        joy_pub_msg.x = self.point_2[0]
+                        joy_pub_msg.y = self.point_2[1]
+                        joy_pub_msg.z = self.point_2[2]
+
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+
+                elif(self.count == 2):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_3')
+                    else :
+                        joy_pub_msg.x = self.point_3[0]
+                        joy_pub_msg.y = self.point_3[1]
+                        joy_pub_msg.z = self.point_3[2]
+
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
             
+                elif(self.count == 3):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_4')
+                    else :
+                        joy_pub_msg.x = self.point_4[0]
+                        joy_pub_msg.y = self.point_4[1]
+                        joy_pub_msg.z = self.point_4[2]
 
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
 
+                elif(self.count == 4):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_5')
+                    else :
+                        joy_pub_msg.x = self.point_5[0]
+                        joy_pub_msg.y = self.point_5[1]
+                        joy_pub_msg.z = self.point_5[2]
+
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+
+                elif(self.count == 5):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_6')
+                    else :
+                        joy_pub_msg.x = self.point_6[0]
+                        joy_pub_msg.y = self.point_6[1]
+                        joy_pub_msg.z = self.point_6[2]
+
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+
+                elif(self.count == 6):
+                    if (joy_msg.buttons[0] == 0):
+                        
+                        self.get_logger().info('position to go :: point_7')
+                    else :
+                        joy_pub_msg.x = self.point_7[0]
+                        joy_pub_msg.y = self.point_7[1]
+                        joy_pub_msg.z = self.point_7[2]
+
+                        self.joy_pos_pub.publish(joy_pub_msg)
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+
+            elif (joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0):
+                if(joy_msg.buttons[0] == 0):
+                    self.get_logger().info('position to go :: Left ring zone !!!!')
+                else :
+                    joy_pub_msg.x = self.ring_L[0]
+                    joy_pub_msg.y = self.ring_L[1]
+                    joy_pub_msg.z = self.ring_L[2]
+                    self.joy_pos_pub.publish(joy_pub_msg)
+                    self.get_logger().info('Go !!!! dont forget to tape pick up')
+            elif (joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1):
+                if(joy_msg.buttons[0] == 0):
+                    self.get_logger().info('position to go :: Right ring zone !!!!')
+                else :
+                    joy_pub_msg.x = self.ring_R[0]
+                    joy_pub_msg.y = self.ring_R[1]
+                    joy_pub_msg.z = self.ring_R[2]
+                    self.joy_pos_pub.publish(joy_pub_msg)
+                    self.get_logger().info('Go !!!! dont forget to tape pick up')          
+                        
+            
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :
@@ -141,6 +226,7 @@ class ros_node(Node):
 
     def velocity_callback(self):
         if self.control_type == False :
+            self.get_logger().info('manual mode!!!')
             pub_msg = Float32MultiArray()
             Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
             Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
@@ -148,7 +234,6 @@ class ros_node(Node):
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])
-            print(Vx)
             self.velocity_pub.publish(pub_msg)
 
         pub_type_msg = Bool()

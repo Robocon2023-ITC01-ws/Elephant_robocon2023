@@ -208,7 +208,8 @@ class position_class(Node):
                 self.pub_x = self.cx[self.tick]     ## different plan
                 self.pub_y = self.cy[self.tick]
                 self.pub_yaw = self.cyaw[self.tick]
-                self.pub_yaw = 0.0      ## here what i need to think
+                ## here too
+                self.pub_yaw = self.pos_yaw      ## here what i need to think
                 if self.tick <= len(self.cx) - 5 :
                     self.ck_test = self.ck[self.tick + 4]
             else :
