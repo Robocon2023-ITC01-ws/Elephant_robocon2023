@@ -14,7 +14,6 @@ from launch_ros.actions import PushRosNamespace
 
 def generate_launch_description():
     # args that can be set from the command line or a default will be used
-    # args that can be set from the command line or a default will be used
     debug_arg = DeclareLaunchArgument(
         "debug", default_value = TextSubstitution(text = "false")
     )
@@ -71,7 +70,8 @@ def generate_launch_description():
         # Node(package='elephant_localization', executable='localization'),
         Node(package='elephant_can',executable='teleop'),
         Node(package='elephant_control',executable='test_controller'),
-        Node(package='elephant_shooter',executable='shooter'),
+        Node(package='elephant_shooter',executable='test'),
+        Node(package='elephant_shooter',executable='param'),
         Node(package='joy', executable='joy_node'),
         Node(package='elephant_publish_pos', executable='test_pos_pub'),
     ])
