@@ -21,11 +21,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'client = elephant_shooter.client:main',
-            'service = elephant_shooter.service:main',
-            'can = elephant_shooter.shooter_can:main',
             'shooter = elephant_shooter.shooter:main',
-            'command = elephant_shooter.shoot_command:main',
+            'test = elephant_shooter.shooter_test:main',
+            'param = elephant_shooter.param_shooter:main',
         ],
     },
 )
