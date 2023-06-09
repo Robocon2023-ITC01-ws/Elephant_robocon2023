@@ -3,8 +3,8 @@ from rclpy.node import Node
 
 from std_msgs.msg import UInt16MultiArray
 from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import Int32
-from std_msgs.msg import Int16
+from std_msgs.msg import UInt16
+from std_msgs.msg import UInt8
 
 import can 
 import time
@@ -13,25 +13,35 @@ def map(Input, Min_Input, Max_Input, Min_Output, Max_Output):
     value =  ((Input - Min_Input) * (Max_Output - Min_Output) / (Max_Input - Min_Input) + Min_Output)
     return value
 
+filters = [
+    {"can_id": 0x333, "can_mask": 0x1FF, "extended": False},
+]
+
 class can_class(Node):
     def __init__(self):
         super().__init__('can_node_test')
-        self.bus = can.interface.Bus(channel='can0', interface='socketcan',bitrate=1000000)
+        self.bus = can.interface.Bus(channel='can0', interface='socketcan',bitrate=1000000, can_filters=filters)
         self.publisher_ = self.create_publisher(UInt16MultiArray, 'tick_feedback', 20)
-        self.laser_publisher_ = self.create_publisher(Int16, 'laser', 10)
+        self.laser_publisher_ = self.create_publisher(UInt16, 'laser', 10)
         self.can_timer = self.create_timer(0.001, self.can_callback)
+        self.subscription = self.create_subscription(
+            UInt8,
+            'process_state',
+            self.state_listener_callback,
+            10)
         self.subscription = self.create_subscription(
             Float32MultiArray,
             'pub_speed',
             self.listener_callback,
             10)
         self.shooter_subscription = self.create_subscription(
-            Int32,
+            UInt16,
             'shooter',
             self.sh_listener_callback,
             10)
         self.TxData = [128,0,128,0,128,0,128,0]
-        self.TxData2 = [0,0,0]
+        self.TxData2 = [0,0]
+        self.TxData3 = [0]
         
         self.Tick = [0,0,0,0]
         self.yaw = 0
@@ -40,24 +50,22 @@ class can_class(Node):
         self.ay = 0
         ############
         self.pub_shoot_speed = 0
+        self.pub_state = 0
         
+    def state_listener_callback(self, state):
+        pub_state = state.data
+        self.TxData3[0] = pub_state
+        self.state_msg = can.Message(arbitration_id=0x145,
+                data=self.TxData3, dlc=1, 
+                is_extended_id=False)
+        self.pub_state = 1
+
     def sh_listener_callback(self, shouter_msg):
-        if (shouter_msg.data > 10):
-            self.TxData2[2] = 1
-     
-            shoot_speed = shouter_msg.data
-        elif (shouter_msg.data < -10):
-            self.TxData2[2] = 0
-            
-            shoot_speed = -1*shouter_msg.data
-        else :
-            self.TxData2[2] = 0
-            shoot_speed = 0
-        
+        shoot_speed = shouter_msg.data
         self.TxData2[0] = ((shoot_speed & 0xFF00) >> 8)
         self.TxData2[1] = (shoot_speed & 0x00FF)
         self.shoot_msg = can.Message(arbitration_id=0x222,
-                data=self.TxData2, dlc=3, 
+                data=self.TxData2, dlc=2, 
                 is_extended_id=False)
         self.pub_shoot_speed = 1
 
@@ -76,7 +84,7 @@ class can_class(Node):
             self.TxData[7] = (V4_out & 0x00FF)
     def can_callback(self):
         pub_msg = UInt16MultiArray()
-        laser_msg = Int16()
+        laser_msg = UInt16()
         msg = can.Message(arbitration_id=0x111,
                 data=self.TxData,
                 is_extended_id=False)
@@ -84,9 +92,13 @@ class can_class(Node):
             if (self.pub_shoot_speed):
                 self.pub_shoot_speed = 0
                 self.bus.send(self.shoot_msg,0.01)
+            if (self.pub_state):
+                self.pub_state = 0
+                self.bus.send(self.state_msg,0.01)
             self.bus.send(msg,0.01)
             finish_recv = True
         except can.CanError :
+            self.get_logger().error('message not send')
             pass
         while(finish_recv):  ## just for test
             try :

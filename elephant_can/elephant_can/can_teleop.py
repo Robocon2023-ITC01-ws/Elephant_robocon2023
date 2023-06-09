@@ -11,8 +11,18 @@ from geometry_msgs.msg import Vector3
 from std_msgs.msg import Float32
 from std_msgs.msg import Float32
 from std_msgs.msg import Int8
+from std_msgs.msg import UInt8
 
 gain = 2
+import yaml
+
+import getpass
+username = getpass.getuser()
+
+def read_one_block_of_yaml_data(filename, key):
+    with open(f'{filename}','r') as f:
+        output = yaml.safe_load(f)
+    return output[f'{key}'] 
 
 class ros_node(Node):
     def __init__(self):
@@ -31,6 +41,7 @@ class ros_node(Node):
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
 
         self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
+        self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
         self.adjust_pub = self.create_publisher(Float32, 'adjust', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
@@ -38,6 +49,22 @@ class ros_node(Node):
 
         self.store_speed = 0.0
         self.reload = 0
+
+        ## data of joy stick
+        self.recived = 0
+        self.moving_process = 0
+        ## point read from yaml file
+        self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
+        self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
+        self.point_2 = read_one_block_of_yaml_data(self.file, key='point_2')
+        self.point_3 = read_one_block_of_yaml_data(self.file, key='point_3')
+        self.point_4 = read_one_block_of_yaml_data(self.file, key='point_4')
+        self.point_5 = read_one_block_of_yaml_data(self.file, key='point_5')
+        self.point_6 = read_one_block_of_yaml_data(self.file, key='point_6')
+        self.point_7 = read_one_block_of_yaml_data(self.file, key='point_7')
+        self.point_1 = read_one_block_of_yaml_data(self.file, key='point_1')
+        self.ring_R = read_one_block_of_yaml_data(self.file, key='ring_R')
+        self.ring_L = read_one_block_of_yaml_data(self.file, key='ring_L')
 
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]
@@ -52,39 +79,59 @@ class ros_node(Node):
         adjust_msg.data = float(joy_msg.axes[5])
         self.adjust_pub.publish(adjust_msg)
 
-        # if (joy_msg.buttons[2] == 1):
-        #     self.store_speed = (float)(self.kinematic.map((float)(joy_msg.axes[2]),1.0,-1.0,0.0,-1000.0))
-        #     shoot_msg.data = self.store_speed
-        #     self.shooter_speed_pub.publish(shoot_msg)
-        # if (joy_msg.buttons[1] == 1):
-        #     shoot_msg.data = self.store_speed * -1.0
-        #     self.reload = 1
-        #     self.shooter_speed_pub.publish(shoot_msg)
-
-
-        # elif (joy_msg.buttons[1] == 0 and self.reload == 1):
-        #     self.reload = 0
-        #     shoot_msg.data = self.store_speed
-        #     self.shooter_speed_pub.publish(shoot_msg)
+        if (joy_msg.buttons[3] == 1):
+            state = UInt8()
+            state.data = 1
+            self.state_pub.publish(state)
+        
+        if (joy_msg.buttons[1] == 1):
+            state = UInt8()
+            state.data = 0
+            self.state_pub.publish(state)
             
 
         if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
             self.control_type = True
         elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
             self.control_type = False
+
+
         if self.control_type == True : 
             if joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0:
                 msg = Vector3()
                 msg.x = 4.2        ##  
-                msg.y = -1.76
+                msg.y = -5.6
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
             elif joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1:
                 msg = Vector3()
-                msg.x = 4.76
-                msg.y = 1.65
+                msg.x = 3.6
+                msg.y = 4.9
                 msg.z = 0.0
                 self.joy_pos_pub.publish(msg)
+            
+            
+            # if joy_msg.buttons[11] == 1 and self.recived == 0:   ## left ring
+            #     self.recived = 1
+            
+            # if joy_msg.buttons[12] == 1 and self.recived == 0 : ## right ring
+            #     self.recived = 1
+            
+            # if joy_msg.axes[7] > 0.0 and self.recived == 0:
+            #     self.recived = 1
+            #     self.moving_process = self.moving_process + 1
+
+            # elif joy_msg.axes[7] < 0.0 and self.recived == 0:
+            #     self.recived = 1
+            #     self.moving_process = self.moving_process - 1
+
+            # elif joy_msg.axes[7] == 0.0 and self.recived == 1:
+            #     self.recived = 0
+
+            self.get_logger().info("%d" % self.moving_process)
+            
+
+
 
     def twist_callback(self, twist_msg):
         if self.control_type == False :

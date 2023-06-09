@@ -6,7 +6,6 @@ from std_msgs.msg import UInt16 # laser: subscribe the data from laser
 from std_msgs.msg import UInt8 # motor: publish the data to the motor 
 from std_msgs.msg import Int8 # button: to control shoot or not shoot
 from std_msgs.msg import Float32
-from std_msgs.msg import Float32MultiArray
 from time import sleep
 
 from shooter.ER_shooter import *
@@ -17,9 +16,16 @@ class ShooterNode(Node):
 
         self.laser_sub = self.create_subscription(UInt16, 'laser', self.laser_callback, 10)
         self.button_sub = self.create_subscription(Int8, "shooter_command", self.button_callback, 10)
+<<<<<<< HEAD
         # self.adjust_sub = self.create_subscription(Float32, "adjust", self.adjust_callback,10)
         self.shooter_pub = self.create_publisher(UInt16, 'shooter', 10)
         self.shoot_pub = self.create_publisher(UInt8, 'process_state', 10)
+=======
+        self.adjust_sub = self.create_subscription(Float32, "adjust", self.adjust_callback,10)
+        self.shooter_pub = self.create_publisher(UInt16, 'shooter', 10)
+        self.shoot_pub = self.create_publisher(UInt8, 'process_state', 10)
+
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
         self.button_command = 0
         self.laser_data = 0
         self.shooter_data = 0
@@ -39,8 +45,14 @@ class ShooterNode(Node):
             if(self.rps == 7433):
                 self.rps = 0 
             shooter_msg = UInt16()
+<<<<<<< HEAD
             shooter_msg.data = int(self.rps)
             self.shooter_pub.publish(shooter_msg)
+=======
+            shooter_msg.data = self.rps
+            self.shooter_pub.publish(shooter_msg)
+            ## here
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
             shoot_msg = UInt8()
             shoot_msg.data = 2
             self.shoot_pub.publish(shoot_msg)

@@ -63,7 +63,12 @@ class shooter():
             X_in = X_in*self.param[3]
             #X_in = X_in*2
         elif(X_in>1.2 and X_in<=1.3):
+<<<<<<< HEAD
             X_in = X_in*self.param[4]
+=======
+            a = self.map(self.adjust, -1, 1, 1.95,2.1)
+            X_in = X_in*a
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
             #X_in = X_in*1.9
         elif(X_in>1.3 and X_in<=1.4):
             X_in = X_in*self.param[5]
@@ -101,6 +106,7 @@ class shooter():
             X_in = a
             #X_in = self.map(X_in, 1.5, 0.5, 3.73, 1.5)    
         elif(X_in>2.6 and X_in<=2.7):
+<<<<<<< HEAD
             a = self.map(X_in, 1.5, 0.5, self.param[14], 1.5)
             X_in = a
             #X_in = self.map(X_in, 1.5, 0.5, 2.8, 1.5)
@@ -110,6 +116,17 @@ class shooter():
             #X_in = self.map(X_in, 1.5, 0.5, 2.7, 1.5) 
         elif(X_in>2.8 and X_in<=2.9):
             a = self.map(X_in, 1.5, 0.5, self.param[16], 1.5)
+=======
+            a = self.map(self.adjust, -1, 1, self.map(X_in, 1.5, 0.5, 3.3, 1.5),self.map(X_in, 1.5, 0.5, 3.4, 1.5))
+            X_in = a
+            #X_in = self.map(X_in, 1.5, 0.5, 2.8, 1.5)
+        elif(X_in>2.7 and X_in<=2.8):
+            a = self.map(self.adjust, -1, 1, self.map(X_in, 1.5, 0.5, 3.8, 1.5),self.map(X_in, 1.5, 3.9, 3, 1.5))
+            X_in = a
+            #X_in = self.map(X_in, 1.5, 0.5, 2.7, 1.5) 
+        elif(X_in>2.8 and X_in<=2.9):
+            a = self.map(self.adjust, -1, 1, self.map(X_in, 1.5, 0.5, 3.9, 1.5),self.map(X_in, 1.5, 4, 3, 1.5))
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
             X_in = a
             #X_in = self.map(X_in, 1.5, 0.5, 2.65, 1.5) 
         elif(X_in>3.2 and X_in<=3.5):
@@ -121,11 +138,19 @@ class shooter():
             X_in = a
             #X_in = self.map(X_in, 2.25, 0.5, 3.9, 1.5)
         elif(X_in>3.8 and X_in<=4.1):
+<<<<<<< HEAD
             a = self.map(X_in, 1.5, 0.5, self.param[19], 1.5)
             X_in = a
             #X_in = self.map(X_in, 2.35, 0.5, 4.05, 1.5)
         elif(X_in>4.1 and X_in<=4.4):
             a = self.map(X_in, 1.5, 0.5, self.param[20], 1.5)
+=======
+            a = self.map(self.adjust, -1, 1, self.map(X_in, 1.5, 0.5, 4, 1.5),self.map(X_in, 1.5, 0.5, 4.1, 1.5))
+            X_in = a
+            #X_in = self.map(X_in, 2.35, 0.5, 4.05, 1.5)
+        elif(X_in>4.1 and X_in<=4.4):
+            a = self.map(self.adjust, -1, 1, self.map(X_in, 1.5, 0.5, 3.8, 1.5),self.map(X_in, 1.5, 0.5, 3.9, 1.5))
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
             X_in = a
             #X_in = self.map(X_in, 2.46, 0.5, 4.15, 1.5)
         elif(X_in>=5.5 and X_in<5.6):
@@ -133,7 +158,12 @@ class shooter():
             X_in = a
             #X_in = self.map(X_in,1.5, 0.5,3.5, 1.5)
         elif(X_in>0.7 and X_in<0.9):
+<<<<<<< HEAD
             X_in = X_in*self.param[22]
+=======
+            a = self.map(self.adjust, -1,1,3.5,3.6)
+            X_in = X_in*a
+>>>>>>> 91752ec763aa4ee424cc9ad63fca54441353c84c
             #X_in = 3.4*X_in 
         elif(X_in>0.6 and X_in<=0.7):
             X_in = X_in*self.param[23]

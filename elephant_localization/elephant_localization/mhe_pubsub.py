@@ -19,6 +19,7 @@ class ros_node(Node):
         self.pitch = 0.0
         self.yaw = 0.0
         self.q = np.zeros(4)
+        self.q1 = np.zeros(4)
         self.wheel_vel = np.zeros(4)
         self.wheel_cal = np.zeros(4)
         self.velocity_callback = np.zeros(4)
@@ -64,7 +65,8 @@ class ros_node(Node):
         # ROS2 Publisher and Subscriber
         self.imu_subscriber = self.create_subscription(Imu, "/imu/data2", self.imu_callback, 100)
         self.control_feedback = self.create_subscription(Float32MultiArray, "feedback", self.control_callback, 100)
-        self.timer_integral = self.create_timer(self.timer, self.integral)
+        self.pos_feedback = self.create_subscription(Odometry, "wheel_odom" , self.pos_callback, 10)
+        #self.timer_integral = self.create_timer(self.timer, self.integral)
         self.odom_publisher = self.create_publisher(Vector3, "/odom/data",10)
         self.odom_timer = self.create_timer(self.timer, self.odom_callback)
 
@@ -85,14 +87,16 @@ class ros_node(Node):
         self.q[3] = imu_msg.orientation.w
 
         self.roll, self.pitch, self.yaw = self.elephant.euler_from_quaternion(self.q[0], self.q[1], self.q[2], self.q[3])
-        self.yaw = -self.yaw
-
-    def integral(self):
-        dx = (self.command_vel[0]*np.cos(self.yaw) + self.command_vel[1]*np.sin(self.yaw))*self.dt 
-        dy = (-self.command_vel[0]*np.sin(self.yaw) + self.command_vel[1]*np.cos(self.yaw))*self.dt
-        self.position[0] = dx + self.position[0]
-        self.position[1] = dy + self.position[1]
-        self.current_state = np.array([self.position[0], self.position[1],self.yaw])
+        
+    def pos_callback(self, pos_msg):
+    	self.position[0] = pos_msg.pose.pose.position.x
+    	self.position[1] = pos_msg.pose.pose.position.y
+    	self.q1[0] = pos_msg.pose.pose.orientation.x
+    	self.q1[1] = pos_msg.pose.pose.orientation.y
+    	self.q1[2] = pos_msg.pose.pose.orientation.z
+    	self.q1[3] = pos_msg.pose.pose.orientation.w
+    	roll, pitch, yaw1 = self.elephant.euler_from_quaternion(self.q[0], self.q[1], self.q[2], self.q[3])
+    	self.current_state = np.array([self.position[0], self.position[1],self.yaw])
 
     def odom_callback(self):
         odom_msg = Vector3()
@@ -142,6 +146,7 @@ class ros_node(Node):
         self.odom_publisher.publish(odom_msg)
         #self.current_state = self.sol_Xmhe.full()[:,self.Nmhe]  
         self.get_logger().info("%f\t" % np.round(self.sol_Xmhe[0],3) + "%f\t" % np.round(self.sol_Xmhe[1],3) +"%f" % np.round(self.sol_Xmhe[2],3) )  
+        #self.get_logger().info("%f\t" % np.round(self.position[2]))
 
 def main(args=None):
     rclpy.init(args=args)
