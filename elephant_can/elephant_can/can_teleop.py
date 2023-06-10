@@ -116,105 +116,105 @@ class ros_node(Node):
                 ## process pub position
                 if(self.count == 0):
                     if (joy_msg.buttons[0] == 0):
-                        self.get_logger().info('position to go :: point_1')
+                        self.get_logger().info('position to go :: point_1', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_1[0]
                         joy_pub_msg.y = self.point_1[1]
                         joy_pub_msg.z = self.point_1[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!' , throttle_duration_sec=0.5)
 
                 elif(self.count == 1):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_2')
+                        self.get_logger().info('position to go :: point_2', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_2[0]
                         joy_pub_msg.y = self.point_2[1]
                         joy_pub_msg.z = self.point_2[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
 
                 elif(self.count == 2):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_3')
+                        self.get_logger().info('position to go :: point_3', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_3[0]
                         joy_pub_msg.y = self.point_3[1]
                         joy_pub_msg.z = self.point_3[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
             
                 elif(self.count == 3):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_4')
+                        self.get_logger().info('position to go :: point_4', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_4[0]
                         joy_pub_msg.y = self.point_4[1]
                         joy_pub_msg.z = self.point_4[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
 
                 elif(self.count == 4):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_5')
+                        self.get_logger().info('position to go :: point_5', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_5[0]
                         joy_pub_msg.y = self.point_5[1]
                         joy_pub_msg.z = self.point_5[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
 
                 elif(self.count == 5):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_6')
+                        self.get_logger().info('position to go :: point_6', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_6[0]
                         joy_pub_msg.y = self.point_6[1]
                         joy_pub_msg.z = self.point_6[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
 
                 elif(self.count == 6):
                     if (joy_msg.buttons[0] == 0):
                         
-                        self.get_logger().info('position to go :: point_7')
+                        self.get_logger().info('position to go :: point_7', throttle_duration_sec=0.5)
                     else :
                         joy_pub_msg.x = self.point_7[0]
                         joy_pub_msg.y = self.point_7[1]
                         joy_pub_msg.z = self.point_7[2]
 
                         self.joy_pos_pub.publish(joy_pub_msg)
-                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!')
+                        self.get_logger().info('Go!!!!!!!!!!!!!!!!!!', throttle_duration_sec=0.5)
 
             elif (joy_msg.buttons[4] == 1 and joy_msg.buttons[5] == 0):
                 if(joy_msg.buttons[0] == 0):
-                    self.get_logger().info('position to go :: Left ring zone !!!!')
+                    self.get_logger().info('position to go :: Left ring zone !!!!', throttle_duration_sec=0.5)
                 else :
                     joy_pub_msg.x = self.ring_L[0]
                     joy_pub_msg.y = self.ring_L[1]
                     joy_pub_msg.z = self.ring_L[2]
                     self.joy_pos_pub.publish(joy_pub_msg)
-                    self.get_logger().info('Go !!!! dont forget to tape pick up')
+                    self.get_logger().info('Go !!!! dont forget to tape pick up', throttle_duration_sec=0.5)
             elif (joy_msg.buttons[4] == 0 and joy_msg.buttons[5] == 1):
                 if(joy_msg.buttons[0] == 0):
-                    self.get_logger().info('position to go :: Right ring zone !!!!')
+                    self.get_logger().info('position to go :: Right ring zone !!!!', throttle_duration_sec=0.5)
                 else :
                     joy_pub_msg.x = self.ring_R[0]
                     joy_pub_msg.y = self.ring_R[1]
                     joy_pub_msg.z = self.ring_R[2]
                     self.joy_pos_pub.publish(joy_pub_msg)
-                    self.get_logger().info('Go !!!! dont forget to tape pick up')          
+                    self.get_logger().info('Go !!!! dont forget to tape pick up', throttle_duration_sec=0.5)          
                         
             
 
