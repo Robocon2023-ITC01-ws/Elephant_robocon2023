@@ -45,7 +45,7 @@ def generate_launch_description():
         package= 'imu_n100',
         name = 'imu_node',
         executable= 'imu',
-        output = 'screen',
+       ## output = 'screen',
         parameters= [{
         "debug": LaunchConfiguration('debug'),
         "port": LaunchConfiguration('port'),
@@ -71,7 +71,6 @@ def generate_launch_description():
         Node(package='elephant_shooter',executable='test'),
         Node(package='elephant_shooter',executable='param'),
         Node(package='joy', executable='joy_node'),
-        Node(package='elephant_publish_pos', executable='test_pos_pub'),
     ])
 
 

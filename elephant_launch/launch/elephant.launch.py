@@ -46,7 +46,7 @@ def generate_launch_description():
         package= 'imu_n100',
         name = 'imu_node',
         executable= 'imu',
-        output = 'screen',
+        ##output = 'screen',
         parameters= [{
         "debug": LaunchConfiguration('debug'),
         "port": LaunchConfiguration('port'),

@@ -222,7 +222,7 @@ class position_class(Node):
     def prosses_callback(self):
         print(self.tick)
         self.state_init = ca.DM([self.current_x, self.current_y, self.current_yaw])
-        self.state_target = ca.DM([-1 * self.pub_y, self.pub_x, self.pub_yaw])      ## wrong plane
+        self.state_target = ca.DM([self.pub_x, self.pub_y, self.pub_yaw])      ## wrong plane
         print(self.state_init)
         print(self.state_target)
         if self.run == True :
