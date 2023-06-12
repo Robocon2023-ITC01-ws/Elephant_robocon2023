@@ -13,7 +13,7 @@ class shooter():
     def __init__(self, distance):
         self.distance = distance
         self.param = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0]
-        self.file = f'/home/{username}/elephant_ws/src/elephant_shooter/config/param.yaml'
+        self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_shooter/config/param.yaml'
         self.param = read_one_block_of_yaml_data(self.file)
         print(self.param)
         # Parameters

@@ -28,7 +28,7 @@ class YamlNode(Node):
         self.param_sub = self.create_subscription(Float32MultiArray, 'stored', self.param_callback, 100)
         self.data = {'distance': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0,0.0, 0.0, 0.0, 0.0, 0.0]}
         self.distance = np.zeros(25)
-        self.file = f'/home/{username}/elephant_ws/src/elephant_shooter/config/param.yaml'
+        self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_shooter/config/param.yaml'
 
     def param_callback(self, param_msg):
         self.distance = param_msg.data
