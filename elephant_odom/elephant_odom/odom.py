@@ -30,9 +30,6 @@ def euler_from_quaternion(x, y, z, w):
     t4 = 1.0 - 2.0*(y * y + z * z)
     yaw = math.atan2(t3, t4)
     
-    #if yaw < 0:
-    #	yaw = self.map(yaw, -3.1399, -0.001, 3.1399, 6.2799)
-    
     return yaw
 
 def map(Input, min_input, max_input, min_output, max_output):
@@ -69,9 +66,10 @@ class odom_wheel(Node):
             self.listener_callback,
             20)
         self.imu_subscriber = self.create_subscription(Imu, "/imu/data2", self.imu_callback, 20)
+        self.bno055_subscriber = self.create_subscription(Vector3, "/bno055/imu", self.bno055_callback, 20)
         self.publish_wheel_odom = self.create_publisher(Odometry, 'wheel_odom', 10)
         self.odom_publisher = self.create_publisher(Vector3, "/odom/data",10)
-        self.pub_timer = self.create_timer(0.02, self.pub_timer_cb)
+        self.pub_timer = self.create_timer(0.01, self.pub_timer_cb)
 
         self.ppr = 8200/8      # tick per revelution
         
@@ -85,6 +83,8 @@ class odom_wheel(Node):
 
         self.yaw = 0.0
 
+    def bno055_callback(self, bno055_msg):
+        self.yaw = bno055_msg.z
     def imu_callback(self,imu_msg):
         self.yaw = euler_from_quaternion(imu_msg.orientation.x, imu_msg.orientation.y, imu_msg.orientation.z, imu_msg.orientation.w)
     def pub_timer_cb(self):

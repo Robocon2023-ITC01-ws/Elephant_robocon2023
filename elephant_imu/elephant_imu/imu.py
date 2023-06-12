@@ -37,10 +37,10 @@ class IMU_Node(Node):
         self.stop_request = False 
 
         # Publisher in Vector3 message
-        self.imu_pub = self.create_publisher(Vector3, "/imu/data", 1)
+        self.imu_pub = self.create_publisher(Vector3, "/bno055/imu", 10)
         self.timer_data = self.create_timer(0.001, self.imu_publisher)
         # Publisher in Imu message
-        self.imu_pub2 = self.create_publisher(Imu, "/imu/data2", 1)
+        self.imu_pub2 = self.create_publisher(Imu, "/bno055/imu_data", 10)
         self.timer_data2 = self.create_timer(0.001, self.imu_publisher2)
         # create service
         self.reset_imu_device = self.create_service(Empty,'imu/reset_device',self.callback_reset_imu_device)

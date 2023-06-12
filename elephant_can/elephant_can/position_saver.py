@@ -102,7 +102,7 @@ class ros_node(Node):
             self.control_type = False
         if self.control_type == False : 
 
-            self.get_logger().info("%f\t" % self.pos_x + "%f\t" % self.pos_y +"%f" % self.pos_y , throttle_duration_sec = print_time)
+            self.get_logger().info("%f\t" % self.pos_x + "%f\t" % self.pos_y +"%f" % self.pos_yaw , throttle_duration_sec = print_time)
             if(joy_msg.axes[7] > 0.0 and self.press_button == 0):
                 self.press_button = 1
                 self.count = self.count + 1
