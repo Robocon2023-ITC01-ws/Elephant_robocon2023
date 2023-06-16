@@ -16,7 +16,7 @@ class ShooterNode(Node):
         super().__init__('shooter_node')
 
         self.laser_sub = self.create_subscription(UInt16, 'laser', self.laser_callback, 10)
-        self.button_sub = self.create_subscription(Int8, "shooter_command", self.button_callback, 10)
+        #self.button_sub = self.create_subscription(Int8, "shooter_command", self.button_callback, 10)
         # self.adjust_sub = self.create_subscription(Float32, "adjust", self.adjust_callback,10)
         self.shooter_pub = self.create_publisher(UInt16, 'shooter', 10)
         self.shoot_pub = self.create_publisher(UInt8, 'process_state', 10)
@@ -29,28 +29,31 @@ class ShooterNode(Node):
     # def adjust_callback(self, adjust_msg):
     #     self.adjust = adjust_msg.data
 
-    def button_callback(self, button_msg):
-        button_command = int(button_msg.data)
-        while(button_command == 1):
-            self.laser_sub = self.create_subscription(UInt16, 'laser', self.laser_callback, 10)
-            distance = (4.439 - 0.765)/(3495 - 6)*(self.laser_data - 6) + 0.765
-            print(distance)
-            self.rps = shooter(distance).shooter()
-            if(self.rps == 7433):
-                self.rps = 0 
-            shooter_msg = UInt16()
-            shooter_msg.data = int(self.rps)
-            self.shooter_pub.publish(shooter_msg)
-            shoot_msg = UInt8()
-            shoot_msg.data = 2
-            self.shoot_pub.publish(shoot_msg)
-            self.rps = 0
-            break
+    #def button_callback(self, button_msg):
+    #    button_command = int(button_msg.data)
+    #    while(button_command == 1):
+    #        self.laser_sub = self.create_subscription(UInt16, 'laser', self.laser_callback, 10)
+    #        distance = (4.439 - 0.765)/(3495 - 6)*(self.laser_data - 6) + 0.765
+    #        print(distance)
+    #        self.rps = shooter(distance).shooter()
+    #        if(self.rps == 7433):
+    #            self.rps = 0 
+    #        shooter_msg = UInt16()
+    #        shooter_msg.data = int(self.rps)
+    #        self.shooter_pub.publish(shooter_msg)
+    #        shoot_msg = UInt8()
+    #        shoot_msg.data = 2
+    #        self.shoot_pub.publish(shoot_msg)
+    #        self.rps = 0
+    #        break
 
         
 
     def laser_callback(self, laser_msg):
         self.laser_data = laser_msg.data
+        distance = (4.439 - 0.765)/(3495 - 6)*(self.laser_data - 6) + 0.765
+        print(distance)
+        
         
 
 def main(args=None):

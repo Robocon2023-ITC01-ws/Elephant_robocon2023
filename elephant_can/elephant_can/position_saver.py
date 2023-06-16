@@ -29,6 +29,7 @@ def read_and_modify_one_block_of_yaml_data(filename, key, value):
     print('done!')
 
 gain = 2
+omega_gain = 0.5
 
 class ros_node(Node):
     def __init__(self):
@@ -199,7 +200,7 @@ class ros_node(Node):
             pub_msg = Float32MultiArray()
             Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
             Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
-            Vth = self.kinematic.map(self.omega, -1,1,-1, 1)
+            Vth = self.kinematic.map(self.omega, -1,1,-1 * omega_gain, omega_gain)
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])

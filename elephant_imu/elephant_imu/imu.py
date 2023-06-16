@@ -46,7 +46,10 @@ class IMU_Node(Node):
         self.reset_imu_device = self.create_service(Empty,'imu/reset_device',self.callback_reset_imu_device)
         self.calibration_imu_staus = self.create_service( Trigger,'imu/calibration_status', self.callback_calibration_imu_status)
 
+        self.bno055.reset_imu()
         self.set_imu_configuration()
+
+        
 
 
     def get_ros_params(self):

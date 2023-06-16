@@ -24,6 +24,7 @@ setup(
             'shooter = elephant_shooter.shooter:main',
             'test = elephant_shooter.shooter_test:main',
             'param = elephant_shooter.param_shooter:main',
+            'stat = elephant_shooter.statistic:main',
         ],
     },
 )

@@ -9,12 +9,13 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Vector3
 from std_msgs.msg import Float32
-from std_msgs.msg import Float32
 from std_msgs.msg import Int8
 from std_msgs.msg import UInt8
 
 print_time = 0.5
+
 gain = 2
+omega_gain = 0.5
 import yaml
 
 import getpass
@@ -43,7 +44,8 @@ class ros_node(Node):
 
         self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
         self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
-        self.adjust_pub = self.create_publisher(Float32, 'adjust', 10)
+        self.adjust_up_pub = self.create_publisher(Float32, 'adjust_up', 10)
+        self.adjust_down_pub = self.create_publisher(Float32, 'adjust_down', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
@@ -78,9 +80,13 @@ class ros_node(Node):
         shoot_msg.data = joy_msg.buttons[2]
         self.shooter_speed_pub.publish(shoot_msg)
 
-        adjust_msg = Float32()
-        adjust_msg.data = float(joy_msg.axes[5])
-        self.adjust_pub.publish(adjust_msg)
+        adjust_down_msg = Float32()
+        adjust_down_msg.data = float(joy_msg.axes[5])
+        self.adjust_down_pub.publish(adjust_down_msg)
+
+        adjust_up_msg = Float32()
+        adjust_up_msg.data = float(joy_msg.axes[2])
+        self.adjust_up_pub.publish(adjust_up_msg)
 
         if (joy_msg.buttons[3] == 1):
             state = UInt8()
@@ -231,7 +237,7 @@ class ros_node(Node):
             pub_msg = Float32MultiArray()
             Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
             Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
-            Vth = self.kinematic.map(self.omega, -1,1,-1, 1)
+            Vth = self.kinematic.map(self.omega, -1,1,-1 * omega_gain, omega_gain)
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])
