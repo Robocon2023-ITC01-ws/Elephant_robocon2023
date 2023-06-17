@@ -42,10 +42,10 @@ class ros_node(Node):
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
 
-        self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
-        self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
-        self.adjust_up_pub = self.create_publisher(Float32, 'adjust_up', 10)
-        self.adjust_down_pub = self.create_publisher(Float32, 'adjust_down', 10)
+        # self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
+        # self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
+        # self.adjust_up_pub = self.create_publisher(Float32, 'adjust_up', 10)
+        # self.adjust_down_pub = self.create_publisher(Float32, 'adjust_down', 10)
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
@@ -76,27 +76,27 @@ class ros_node(Node):
         self.vy = joy_msg.axes[0]
         self.omega = -1 * joy_msg.axes[3]
 
-        shoot_msg = Int8()
-        shoot_msg.data = joy_msg.buttons[2]
-        self.shooter_speed_pub.publish(shoot_msg)
+        # shoot_msg = Int8()
+        # shoot_msg.data = joy_msg.buttons[2]
+        # self.shooter_speed_pub.publish(shoot_msg)
 
-        adjust_down_msg = Float32()
-        adjust_down_msg.data = float(joy_msg.axes[5])
-        self.adjust_down_pub.publish(adjust_down_msg)
+        # adjust_down_msg = Float32()
+        # adjust_down_msg.data = float(joy_msg.axes[5])
+        # self.adjust_down_pub.publish(adjust_down_msg)
 
-        adjust_up_msg = Float32()
-        adjust_up_msg.data = float(joy_msg.axes[2])
-        self.adjust_up_pub.publish(adjust_up_msg)
+        # adjust_up_msg = Float32()
+        # adjust_up_msg.data = float(joy_msg.axes[2])
+        # self.adjust_up_pub.publish(adjust_up_msg)
 
-        if (joy_msg.buttons[3] == 1):
-            state = UInt8()
-            state.data = 1
-            self.state_pub.publish(state)
+        # if (joy_msg.buttons[3] == 1):
+        #     state = UInt8()
+        #     state.data = 1
+        #     self.state_pub.publish(state)
         
-        if (joy_msg.buttons[1] == 1):
-            state = UInt8()
-            state.data = 0
-            self.state_pub.publish(state)
+        # if (joy_msg.buttons[1] == 1):
+        #     state = UInt8()
+        #     state.data = 0
+        #     self.state_pub.publish(state)
             
 
         if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:

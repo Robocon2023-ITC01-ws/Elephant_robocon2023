@@ -69,8 +69,7 @@ def generate_launch_description():
         Node(package='elephant_can',executable='can'),
         Node(package='elephant_odom',executable='wheel_odometry'),
         Node(package='elephant_can',executable='save_teleop'),
-        Node(package='elephant_shooter',executable='test'),
-        Node(package='elephant_shooter',executable='param'),
+        Node(package='elephant_shooter_v2',executable='save_shooter'),
         Node(package='joy', executable='joy_node'),
     ])
 

@@ -26,7 +26,7 @@ def read_and_modify_one_block_of_yaml_data(filename, key, value):
     with open(f'{filename}', 'w') as file:
         yaml.dump(data,file,sort_keys=False)
     print('done!')
-    print('done!')
+
 
 gain = 2
 omega_gain = 0.5
@@ -48,9 +48,9 @@ class ros_node(Node):
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
 
-        self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
-        self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
-        self.adjust_pub = self.create_publisher(Float32, 'adjust', 10)
+        # self.shooter_speed_pub = self.create_publisher(Int8, 'shooter_command', 10)
+        # self.state_pub = self.create_publisher(UInt8, 'process_state', 10)
+        # self.adjust_pub = self.create_publisher(Float32, 'adjust', 10)
         
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
@@ -78,29 +78,29 @@ class ros_node(Node):
         self.vy = joy_msg.axes[0]
         self.omega = -1 * joy_msg.axes[3]
 
-        shoot_msg = Int8()
-        shoot_msg.data = joy_msg.buttons[2]
-        self.shooter_speed_pub.publish(shoot_msg)
+        # shoot_msg = Int8()
+        # shoot_msg.data = joy_msg.buttons[2]
+        # self.shooter_speed_pub.publish(shoot_msg)
 
-        adjust_msg = Float32()
-        adjust_msg.data = float(joy_msg.axes[5])
-        self.adjust_pub.publish(adjust_msg)
+        # adjust_msg = Float32()
+        # adjust_msg.data = float(joy_msg.axes[5])
+        # self.adjust_pub.publish(adjust_msg)
 
-        if (joy_msg.buttons[3] == 1):
-            state = UInt8()
-            state.data = 1
-            self.state_pub.publish(state)
+        # if (joy_msg.buttons[3] == 1):
+        #     state = UInt8()
+        #     state.data = 1
+        #     self.state_pub.publish(state)
         
-        if (joy_msg.buttons[1] == 1):
-            state = UInt8()
-            state.data = 0
-            self.state_pub.publish(state)
+        # if (joy_msg.buttons[1] == 1):
+        #     state = UInt8()
+        #     state.data = 0
+        #     self.state_pub.publish(state)
             
 
-        if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
-            self.control_type = True
-        elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
-            self.control_type = False
+        # if joy_msg.buttons[8] == 1 and joy_msg.buttons[9] == 0:
+        #     self.control_type = True
+        # elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
+        #     self.control_type = False
         if self.control_type == False : 
 
             self.get_logger().info("%f\t" % self.pos_x + "%f\t" % self.pos_y +"%f" % self.pos_yaw , throttle_duration_sec = print_time)
