@@ -14,8 +14,7 @@ from std_msgs.msg import UInt8
 
 print_time = 0.5
 
-gain = 2
-omega_gain = 0.5
+
 import yaml
 
 import getpass
@@ -37,7 +36,7 @@ class ros_node(Node):
 
         self.control_type = True
 
-        self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,20)
+        self.joy_sub = self.create_subscription(Joy, '/joy', self.joy_callback,25)
         self.twist_sub = self.create_subscription(Twist, '/cmd_vel', self.twist_callback,10)
         self.velocity_pub = self.create_publisher(Float32MultiArray, 'pub_speed', 10)
         self.joy_pos_pub = self.create_publisher(Vector3, 'joy_position', 10)
@@ -49,6 +48,8 @@ class ros_node(Node):
         self.velocity_timer = self.create_timer(0.01, self.velocity_callback)
         ##
         self.control_type_pub = self.create_publisher(Bool, 'Controller_state', 10)
+
+        # self.omega_sub = self.create_subscription(Float32,"/omega_control",self.omega_sub_cb, 10)
 
         self.store_speed = 0.0
         self.reload = 0
@@ -70,6 +71,17 @@ class ros_node(Node):
 
         self.ring_R = read_one_block_of_yaml_data(self.file, key='ring_R')
         self.ring_L = read_one_block_of_yaml_data(self.file, key='ring_L')
+
+        # self.omega = 0.0
+        ##
+        self.omega_gain = 0.7
+        self.push_omega = 0
+
+        self.vel_gain = 2.0
+        self.push_vel = 0
+
+    # def omega_sub_cb(self,omega_msg):
+    #     self.omega = omega_msg.data
 
     def joy_callback(self, joy_msg):
         self.vx = joy_msg.axes[1]
@@ -103,6 +115,24 @@ class ros_node(Node):
             self.control_type = True
         elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
             self.control_type = False
+
+        if(joy_msg.buttons[12] == 1 and self.push_omega == 0):
+            self.push_omega = 1
+            if(self.omega_gain == 0.7):
+                self.omega_gain = 0.2
+            elif(self.omega_gain == 0.2):
+                self.omega_gain = 0.7
+        elif(joy_msg.buttons[12] == 0 and self.push_omega == 1):
+            self.push_omega = 0
+        
+        if(joy_msg.buttons[11] == 1 and self.push_vel == 0):
+            self.push_vel = 1
+            if(self.vel_gain == 2.0):
+                self.vel_gain = 0.5
+            elif(self.vel_gain == 0.5):
+                self.vel_gain = 2.0
+        elif(joy_msg.buttons[11] == 0 and self.push_vel == 1):
+            self.push_vel = 0
 
 
         if self.control_type == True : 
@@ -233,11 +263,12 @@ class ros_node(Node):
 
     def velocity_callback(self):
         if self.control_type == False :
-            self.get_logger().info('manual mode!!!')
+            self.get_logger().info('manual mode!!!', throttle_duration_sec=print_time)
             pub_msg = Float32MultiArray()
-            Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
-            Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
-            Vth = self.kinematic.map(self.omega, -1,1,-1 * omega_gain, omega_gain)
+            Vx = self.kinematic.map(self.vx, -1 , 1,-1 * self.vel_gain,self.vel_gain)
+            Vy = self.kinematic.map(self.vy, -1, 1, -1 * self.vel_gain, self.vel_gain)
+            Vth = self.kinematic.map(self.omega, -1,1,-1 * self.omega_gain, self.omega_gain)
+            # Vth = self.omega
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])

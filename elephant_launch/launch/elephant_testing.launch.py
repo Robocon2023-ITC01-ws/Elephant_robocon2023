@@ -57,19 +57,19 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # debug_arg,
-        # mag_pose_args,
-        # port_arg,
-        # baud_arg,
-        # imu_frame_arg,
-        # imu_topic_arg,
-        # device_type_args,
-        # ros_imu_node,
-        Node(package='elephant_imu',executable='imu'),
+        debug_arg,
+        mag_pose_args,
+        port_arg,
+        baud_arg,
+        imu_frame_arg,
+        imu_topic_arg,
+        device_type_args,
+        ros_imu_node,
+        # Node(package='elephant_imu',executable='imu'),
         Node(package='elephant_can',executable='can'),
         Node(package='elephant_odom',executable='wheel_odometry'),
-        Node(package='elephant_can',executable='save_teleop'),
-        Node(package='elephant_shooter_v2',executable='save_shooter'),
+        Node(package='elephant_can',executable='save_teleop', output = 'screen'),
+        Node(package='elephant_shooter_v2',executable='save_shooter', output = 'screen'),
         Node(package='joy', executable='joy_node'),
     ])
 

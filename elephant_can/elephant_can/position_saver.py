@@ -28,8 +28,8 @@ def read_and_modify_one_block_of_yaml_data(filename, key, value):
     print('done!')
 
 
-gain = 2
-omega_gain = 0.5
+
+
 
 class ros_node(Node):
     def __init__(self):
@@ -66,6 +66,11 @@ class ros_node(Node):
         self.press_button = 0
         self.count = 0
 
+        self.omega_gain = 1.0
+        self.push_omega = 0
+        self.push_vel = 0
+        self.vel_gain = 2
+
         self.file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_can/elephant_can/param/moving_pos.yaml'
 
     def save_pos_cb(self, pos_msg):
@@ -101,6 +106,24 @@ class ros_node(Node):
         #     self.control_type = True
         # elif joy_msg.buttons[8] == 0 and joy_msg.buttons[9] == 1:
         #     self.control_type = False
+        if(joy_msg.buttons[12] == 1 and self.push_omega == 0):
+            self.push_omega = 1
+            if(self.omega_gain == 1.0):
+                self.omega_gain = 0.2
+            elif(self.omega_gain == 0.2):
+                self.omega_gain = 1.0
+        elif(joy_msg.buttons[12] == 0 and self.push_omega == 1):
+            self.push_omega = 0
+        
+        if(joy_msg.buttons[11] == 1 and self.push_vel == 0):
+            self.push_vel = 1
+            if(self.vel_gain == 2.0):
+                self.vel_gain = 0.5
+            elif(self.vel_gain == 0.5):
+                self.vel_gain = 2.0
+        elif(joy_msg.buttons[11] == 0 and self.push_vel == 1):
+            self.push_vel = 0
+
         if self.control_type == False : 
 
             self.get_logger().info("%f\t" % self.pos_x + "%f\t" % self.pos_y +"%f" % self.pos_yaw , throttle_duration_sec = print_time)
@@ -198,9 +221,9 @@ class ros_node(Node):
     def velocity_callback(self):
         if self.control_type == False :
             pub_msg = Float32MultiArray()
-            Vx = self.kinematic.map(self.vx, -1 , 1,-1 * gain,gain)
-            Vy = self.kinematic.map(self.vy, -1, 1, -1 * gain, gain)
-            Vth = self.kinematic.map(self.omega, -1,1,-1 * omega_gain, omega_gain)
+            Vx = self.kinematic.map(self.vx, -1 , 1,-1 * self.vel_gain,self.vel_gain)
+            Vy = self.kinematic.map(self.vy, -1, 1, -1 * self.vel_gain, self.vel_gain)
+            Vth = self.kinematic.map(self.omega, -1,1,-1 * self.omega_gain, self.omega_gain)
             w1,w2,w3,w4 = self.kinematic.inverse_kinematic(Vx,Vy,Vth)
             pub_msg.data = [float (w1), float (w2), float (w3), float (w4)]
             data = np.array([w1, w2, w3, w4])

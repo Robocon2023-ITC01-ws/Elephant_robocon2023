@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'elephant_odom'
+package_name = 'elephant_pid'
 
 setup(
     name=package_name,
@@ -20,9 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'wheel_odometry=elephant_odom.odom:main',
-            'internal_wheel_odometry=elephant_odom.internal_odom:main',
-            'test_odom=elephant_odom.new_odom:main',
+            'pid_test = elephant_pid.Yaw_PID:main',
+
         ],
     },
 )

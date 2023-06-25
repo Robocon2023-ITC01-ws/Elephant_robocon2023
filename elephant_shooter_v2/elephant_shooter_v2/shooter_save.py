@@ -11,7 +11,7 @@ import getpass
 username = getpass.getuser()
 print_time = 0.5
 ###
-range_of_shoot = 1.0 # m
+range_of_shoot = 1.5 # m
 
 
 def read_and_modify_one_block_of_yaml_data(filename, key, value):
@@ -23,6 +23,10 @@ def read_and_modify_one_block_of_yaml_data(filename, key, value):
         yaml.dump(data,file,sort_keys=False)
     print('done!')
 
+def read_one_block_of_yaml_data(filename, key):
+    with open(f'{filename}','r') as f:
+        output = yaml.safe_load(f)
+    return output[f'{key}'] 
 
 class shooter(Node):
     def __init__(self):
@@ -53,7 +57,11 @@ class shooter(Node):
         self.push_save = 0
         self.saved = 0
 
-
+        self.init_read_param()
+    
+    def init_read_param(self):
+        self.pole_1_a, self.pole_1_b = read_one_block_of_yaml_data(self.pole_1_file, key = 'linear') 
+        self.pole_2_a, self.pole_2_b = read_one_block_of_yaml_data(self.pole_2_file, key = 'linear') 
 
     def laser_dist_callback(self, dist_msg):
         self.distant = dist_msg.data
@@ -99,12 +107,12 @@ class shooter(Node):
             self.push_save = 1
             if(self.saved == 0):
                 self.saved = 1
-                if (self.distant > 0.6 and self.distant < 1.8) :
+                if (self.distant > 0.6 and self.distant < 2.3) :
                     read_and_modify_one_block_of_yaml_data(self.pole_1_file, key=f'point_{self.i_pole_1}', value = [self.save_dist,self.save_speed])
                     self.get_logger().info( "%d \t" % self.i_pole_1+'saved shoot speed to yaml !!!' ,throttle_duration_sec=print_time)
                     self.i_pole_1 = self.i_pole_1 + 1
                     read_and_modify_one_block_of_yaml_data(self.pole_1_file, key=f'len_i', value = self.i_pole_1)
-                elif (self.distant > 1.8 ):
+                elif (self.distant > 2.3):
                     read_and_modify_one_block_of_yaml_data(self.pole_2_file, key=f'point_{self.i_pole_2}', value = [self.save_dist,self.save_speed])
                     self.get_logger().info( "%d \t" % self.i_pole_2+'saved shoot speed to yaml !!!' ,throttle_duration_sec=print_time)
                     self.i_pole_2 = self.i_pole_2 + 1
@@ -123,9 +131,9 @@ class shooter(Node):
         # y = -14.19*np.power(x,7) + 238.3*np.power(x,6) - 1638*np.power(x,5) + 5946*np.power(x,4) - 1.226e+04*np.power(x,3) + 1.43e+04*np.power(x,2) - 8632*x + 2446
         # y = 37.72 * np.power(x,3) - 276.3 * np.power(x,2) + 578.7 * x + 13.44
         if (self.distant > 0.6 and self.distant < 1.8) :    # pole 1
-            y = 97.4 * x + 253.26
+            y = self.pole_1_a * x + self.pole_1_b
         elif (self.distant > 1.8 ):
-            y = 72.39 * x + 311.3
+            y = self.pole_2_a * x + self.pole_2_b
         return y
     
     def map(self, Input, Min_Input, Max_Input, Min_Output, Max_Output):

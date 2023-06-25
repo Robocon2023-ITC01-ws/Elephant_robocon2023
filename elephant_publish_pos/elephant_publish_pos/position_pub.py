@@ -34,7 +34,7 @@ y_left = Left[1]
 x_right = Right[0]
 y_right = Right[1]
 
-distant = 0.8
+distant = 0.4
 
 # trajactory
 def two_point_trajectory(dl,x0,y0,x1,y1):      # use for two points
@@ -141,12 +141,12 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_y < y_left and self. pos_x > x_left):
                     ## three point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - y_left/2,y_left/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - distant,y_left - distant
                                            ,self.pos_x,self.pos_y)
                 elif(self.pos_y > y_right and self.pos_x > x_right):
                     ## four point
-                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_left - y_left/2,y_left/2
-                                          ,x_right + y_right/2,y_right/2,self.pos_x,self.pos_y)
+                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_left - distant,y_left - distant
+                                          ,x_right + distant,y_right - distant ,self.pos_x,self.pos_y)
             elif(self.current_x < x_left and self.current_y < y_left):  ## surface 2
                 if(self.pos_x < x_left):
                     ## two point 
@@ -156,7 +156,7 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_x > x_right and self.pos_y > y_right):
                     ## three point 
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + distant,y_right - distant
                                            ,self.pos_x,self.pos_y)
             elif(self.current_x > x_left and self.current_x < x_right and self.current_y < y_left): ## surface 3
                 if (self.pos_y < y_left):
@@ -164,11 +164,11 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif (self.pos_x < x_left and self.pos_y > y_left):
                     # thee point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - y_left/2,y_left/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - distant,y_left - distant
                                            ,self.pos_x,self.pos_y)
                 elif(self.pos_x > x_right and self.pos_y > y_right):
                     # thee point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + distant,y_right - distant
                                            ,self.pos_x,self.pos_y)
             elif(self.current_x > x_right and self.current_y < y_right):    ## surface 4
                 if(self.pos_y < y_right):
@@ -179,7 +179,7 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_x < x_left and self.pos_y > y_right):
                     ## three point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - y_left/2,y_left/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_left - distant,y_left - distant
                                            ,self.pos_x,self.pos_y)
             elif(self.current_x > x_right and self.current_y > y_right):    ## surface 5
                 if(self.pos_x >  x_right):
@@ -187,11 +187,11 @@ class position_class(Node):
                     self.cx, self.cy, self.cyaw, self.ck = two_point_trajectory(0.1,self.current_x,self.current_y,self.pos_x,self.pos_y)
                 elif(self.pos_y < y_right and self. pos_x < x_right):
                     # thee point
-                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = three_point_trajectory(0.1,self.current_x,self.current_y,x_right + distant,y_right - distant
                                            ,self.pos_x,self.pos_y)
                 elif(self.pos_y > y_right and self. pos_x < x_left):
                     ## four point
-                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_right + y_right/2,y_right/2
+                    self.cx, self.cy, self.cyaw, self.ck = four_point_trajectory(0.1,self.current_x,self.current_y,x_right + distant,y_right - distant
                                           ,x_left - y_left/2,y_left/2,self.pos_x,self.pos_y)
             self.slow_speed = 1.0
             self.run = True     ## state for publish mpc_position
@@ -221,13 +221,13 @@ class position_class(Node):
 
     def prosses_callback(self):
         print(self.tick)
-        self.state_init = ca.DM([self.current_x, self.current_y, self.current_yaw])
-        self.state_target = ca.DM([self.pub_x, self.pub_y, self.pub_yaw])      ## wrong plane
+        self.state_init = ca.DM([self.current_x, self.current_y, 0.1 * self.current_yaw])
+        self.state_target = ca.DM([self.pub_x, self.pub_y, 0.1 * self.pub_yaw])      ## wrong plane
         print(self.state_init)
         print(self.state_target)
         if self.run == True :
             ###
-            if( ca.norm_2(self.state_init - self.state_target) <= 1.5) : 
+            if( ca.norm_2(self.state_init - self.state_target) <= 1.3) : 
                 # self.tick = self.tick + 1
                 if(abs(self.ck_test)) > 0.10:
                     self.tick = self.tick + 1

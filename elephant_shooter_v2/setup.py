@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'save_shooter = elephant_shooter_v2.shooter_save:main',
+            'load_shooter = elephant_shooter_v2.load_shooting_param:main',
             'run_shooter = elephant_shooter_v2.run_shooter:main',
         ],
     },

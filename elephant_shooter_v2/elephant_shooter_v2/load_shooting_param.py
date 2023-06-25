@@ -9,23 +9,24 @@ import yaml
 import numpy as np
 import getpass
 username = getpass.getuser()
-print_time = 1.0
+print_time = 0.5
 ###
-
+range_of_shoot = 0.5 # m
 
 def read_and_modify_one_block_of_yaml_data(filename, key, value):
     with open(f'{filename}', 'r') as f:
         data = yaml.safe_load(f)
         data[f'{key}'] = value 
-        print(data) 
+        # print(data) 
     with open(f'{filename}', 'w') as file:
         yaml.dump(data,file,sort_keys=False)
-    print('done!')
+    print('done!!!!!!')
 
 def read_one_block_of_yaml_data(filename, key):
     with open(f'{filename}','r') as f:
         output = yaml.safe_load(f)
     return output[f'{key}'] 
+
 
 class shooter(Node):
     def __init__(self):
@@ -43,46 +44,51 @@ class shooter(Node):
         self.increase = 0.0
         self.decrease = 0.0
 
-        self.range_of_shoot = 0.5 # m
-
-
-        self.save_speed = 0.0
-        self.save_dist = 0.0
-
+        ## file yaml
         ## file yaml
         self.pole_1_file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_shooter_v2/elephant_shooter_v2/param/pole_1.yaml'
         self.pole_2_file = f'/home/{username}/Elephant_ws/src/Elephant_robocon2023/elephant_shooter_v2/elephant_shooter_v2/param/pole_2.yaml'
-        self.i_pole_2 = 0
-        self.i_pole_1 = 0
-        ## push button
+                ## push button
         self.push_shoot = 0
         self.push_save = 0
-        self.push_shoot_gain = 0
         self.saved = 0
 
-        self.init_read_param()
-    
-    def init_read_param(self):
-        self.pole_1_a, self.pole_1_b = read_one_block_of_yaml_data(self.pole_1_file, key = 'linear') 
-        self.pole_2_a, self.pole_2_b = read_one_block_of_yaml_data(self.pole_2_file, key = 'linear') 
+        self.init_model_from_param()
+
+    def init_model_from_param(self):
+        pole_1_len = read_one_block_of_yaml_data(self.pole_1_file, key = 'len_i') 
+        pole_2_len = read_one_block_of_yaml_data(self.pole_2_file,key = 'len_i') 
+
+        pole_1_distant = np.zeros(pole_1_len)
+        pole_1_speed = np.zeros(pole_1_len)
+
+        pole_2_distant = np.zeros(pole_2_len)
+        pole_2_speed = np.zeros(pole_2_len)
+
+        for i in range(pole_1_len):
+            data = read_one_block_of_yaml_data(self.pole_1_file, key = f'point_{i}')
+            pole_1_distant[i] = data[0]
+            pole_1_speed[i] = data[1]
+
+        z = np.polyfit(pole_1_distant, pole_1_speed, 1)
+        read_and_modify_one_block_of_yaml_data(self.pole_1_file, key = 'linear', value = [(float)(z[0]), (float)(z[1])])
+        self.pole_1_power = np.poly1d(z)
+
+        for i in range (pole_2_len):
+            data = read_one_block_of_yaml_data(self.pole_2_file, key = f'point_{i}')
+            pole_2_distant[i] = data[0]
+            pole_2_speed[i] = data[1]
+        z2 = np.polyfit(pole_2_distant, pole_2_speed,1)
+        read_and_modify_one_block_of_yaml_data(self.pole_2_file, key = 'linear', value = [(float)(z2[0]),(float)(z2[1])])
+        self.pole_2_power = np.poly1d(z2)
+
 
     def laser_dist_callback(self, dist_msg):
         self.distant = dist_msg.data
         
     def joy_callback(self,joy_msg):
-        self.increase = self.map(joy_msg.axes[5], 1.0, -1.0 , 0, self.range_of_shoot)
-        self.decrease = self.map(joy_msg.axes[2], 1.0, -1.0 , 0, self.range_of_shoot)
-
-        if(joy_msg.buttons[10] == 1 and self.push_shoot_gain == 0):
-            self.push_shoot_gain = 1
-            if(self.range_of_shoot == 1.5):
-                self.range_of_shoot = 0.5
-                self.get_logger().info('low gain!!!!',throttle_duration_sec = 0.5)
-            else :
-                self.range_of_shoot = 1.5
-                self.get_logger().info('high gain!!!!', throttle_duration_sec = 0.5)
-        elif (joy_msg.buttons[10] == 0 and self.push_shoot_gain == 1):
-            self.push_shoot_gain = 0
+        self.increase = self.map(joy_msg.axes[5], 1.0, -1.0 , 0, range_of_shoot)
+        self.decrease = self.map(joy_msg.axes[2], 1.0, -1.0 , 0, range_of_shoot)
 
 
         if (joy_msg.buttons[3] == 1):
@@ -99,11 +105,7 @@ class shooter(Node):
             self.push_shoot = 1
 
             shoot_speed_pub = Float32()
-            power = self.distant + self.increase - self.decrease
-            if (power < 0): 
-                power = 0
-                
-            shoot_speed = self.speed(power)
+            shoot_speed = self.speed(self.distant + self.increase - self.decrease)
             shoot_speed_pub.data = shoot_speed
 
             self.shoot_publisher_.publish(shoot_speed_pub)
@@ -117,23 +119,19 @@ class shooter(Node):
 
         elif (joy_msg.buttons[2] == 0 and self.push_shoot == 1):
             self.push_shoot = 0
-        
 
-
-    def speed(self, x):
-        # y = -14.19*np.power(x,7) + 238.3*np.power(x,6) - 1638*np.power(x,5) + 5946*np.power(x,4) - 1.226e+04*np.power(x,3) + 1.43e+04*np.power(x,2) - 8632*x + 2446
-        # y = 37.72 * np.power(x,3) - 276.3 * np.power(x,2) + 578.7 * x + 13.44
-        if (self.distant > 0.6 and self.distant < 1.8) :    # pole 1
-            y = self.pole_1_a * x + self.pole_1_b
-        elif (self.distant > 1.8 ):
-            y = self.pole_2_a * x + self.pole_2_b
-        return y
     
+    def speed(self, x):
+        if (self.distant > 0.6 and self.distant < 2.3) :    # pole 1
+            y = self.pole_1_power(x)
+        elif (self.distant > 2.3 ):
+            y = self.pole_2_power(x)
+        return y
     def map(self, Input, Min_Input, Max_Input, Min_Output, Max_Output):
         value =  ((Input - Min_Input) * (Max_Output - Min_Output) / (Max_Input - Min_Input) + Min_Output)
         return value
-    
 
+    
 
 
 def main(args=None):

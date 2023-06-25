@@ -9,11 +9,11 @@ import math
 from casadi import sin, cos, pi
 
 # setting matrix_weights' variables
-Q_x = 2000
-Q_y = 2000
-Q_theta = 1800
+Q_x = 2400
+Q_y = 2400
+Q_theta = 2000
 ############
-V_limit = 45.0  # rad/s
+V_limit = 50.0  # rad/s
 accel = 12.0 # rad/s^2
 ############
 R1 = 1
